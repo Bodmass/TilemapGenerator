@@ -1,14 +1,18 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using UnityEngine.Tilemaps;
 
 public class GenerationWindow : EditorWindow
 {
 
-    string myLevel = "My Level";
-    int perspectiveSelected = 2;
-    int levelSelected = 2;
-    int gridX = 32;
-    int gridY = 32;
+    string myLevel = "Untitled";
+    int creationModeSelected = 0;
+    int perspectiveSelected = 0;
+    int levelSelected = 0;
+    int[] grid = new int[] { 32, 32 };
+    int CellSize = 1;
+    int PixelsPerUnit = 32;
+    static string[] creationModeOptions = new string[] { "Simple", "Advanced" };
     static string[] perspectiveOptions = new string[] { "2D Tilemap", "2D Platformer", "Isometric" };
     static string[] levelOptions = new string[] { "World Map", "Dungeon", "Town" };
 
@@ -46,6 +50,14 @@ public class GenerationWindow : EditorWindow
         bool canGenerate = true;
         GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.01\n", EditorStyles.centeredGreyMiniLabel);
 
+        GUILayout.Label("\nCreation Mode:", EditorStyles.boldLabel);
+
+        creationModeSelected = GUILayout.SelectionGrid(creationModeSelected, creationModeOptions, creationModeOptions.Length, EditorStyles.radioButton);
+        if(creationModeSelected == 1)
+        {
+            GUILayout.Label("(*) - Advanced Options", EditorStyles.miniLabel);
+        }
+        GUILayout.Label("\n", EditorStyles.boldLabel);
 
         //EditorGUI.Toggle(rect, gUIContent, false);#
         myLevel = EditorGUILayout.TextField("Level Name:", myLevel);
@@ -63,30 +75,31 @@ public class GenerationWindow : EditorWindow
         if (perspectiveSelected == 0 && levelSelected == 0)
         {
             GUILayout.Label(" ", EditorStyles.miniLabel);
-            gridX = EditorGUILayout.IntField("Grid X", gridX, EditorStyles.miniTextField);
-            gridY = EditorGUILayout.IntField("Grid Y", gridY, EditorStyles.miniTextField);
+
+            grid[0] = EditorGUILayout.IntField("Grid X", grid[0], EditorStyles.miniTextField);
+            grid[1] = EditorGUILayout.IntField("Grid Y", grid[1], EditorStyles.miniTextField);
             //gridY = int.Parse(GUILayout.TextField(gridY));
-            if(gridX <= 0)
+            if(grid[0] <= 0)
             {
-                gridX = 0;
+                grid[0] = 0;
             }
 
-            if (gridY <= 0)
+            if (grid[1] <= 0)
             {
-                gridY = 0;
+                grid[1] = 0;
             }
 
-            if (gridX <= 256 && gridY <= 256)
+            if (grid[0] <= 256 && grid[1] <= 256)
             {
 
-                if(gridX == 0 || gridY == 0)
+                if(grid[0] == 0 || grid[1] == 0)
                 {
                     GUILayout.Label("\nError: The size of the grid must be atleast 1x1", EditorStyles.miniLabel);
                     canGenerate = false;
                 }
                 else
                 {
-                    GUILayout.Label("\nThis will generate " + (gridX * gridY).ToString() + " cells", EditorStyles.miniLabel);
+                    GUILayout.Label("\nThis will generate " + (grid[0] * grid[1]).ToString() + " cells.\n", EditorStyles.miniLabel);
                 }
 
 
@@ -103,7 +116,14 @@ public class GenerationWindow : EditorWindow
             GUILayout.Label("\nThis is not yet implemented, sorry.", EditorStyles.miniLabel);
         }
 
-        GUILayout.Label("\nDrag n' Drop a Tile Pallete you wish to use:", EditorStyles.boldLabel);
+        if (creationModeSelected == 1)
+        {
+            CellSize = EditorGUILayout.IntField("(*) Cell Size", CellSize, EditorStyles.miniTextField);
+            PixelsPerUnit = EditorGUILayout.IntField("(*) Pixels Per Unit", PixelsPerUnit, EditorStyles.miniTextField);
+            GUILayout.Label("Do not change unless you know what you are doing. The default is the same as the demo Tile Pallete.", EditorStyles.helpBox);
+            GUILayout.Label("\nDrag n' Drop a Tile Pallete you wish to use:", EditorStyles.boldLabel);
+        }
+
         DropZone("Tileset", 50, 50);
 
         if (!canGenerate)
@@ -113,6 +133,13 @@ public class GenerationWindow : EditorWindow
         if (GUILayout.Button("Generate", EditorStyles.miniButton))
         {
             Debug.Log("Generate");
+
+            GameObject newGrid = new GameObject("Grid: "+myLevel, typeof(Grid));
+            GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
+            newTilemap.GetComponent<Transform>().SetParent(newGrid.transform);
+
+            newGrid.AddComponent<TilemapGenerator>();
+            newGrid.GetComponent<Grid>().cellSize = new Vector3(CellSize, CellSize, 0);
         }
         GUI.enabled = true;
 
