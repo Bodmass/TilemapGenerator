@@ -15,6 +15,7 @@ public class GenerationWindow : EditorWindow
     static string[] creationModeOptions = new string[] { "Simple", "Advanced" };
     static string[] perspectiveOptions = new string[] { "2D Tilemap", "2D Platformer", "Isometric" };
     static string[] levelOptions = new string[] { "World Map", "Dungeon", "Town" };
+    TileBase tileBase;
 
     public static object[] DropZone(string title, int w, int h)
     {
@@ -47,8 +48,9 @@ public class GenerationWindow : EditorWindow
 
     void OnGUI ()
     {
+        
         bool canGenerate = true;
-        GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.01\n", EditorStyles.centeredGreyMiniLabel);
+        GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.27\n", EditorStyles.centeredGreyMiniLabel);
 
         GUILayout.Label("\nCreation Mode:", EditorStyles.boldLabel);
 
@@ -121,9 +123,11 @@ public class GenerationWindow : EditorWindow
             CellSize = EditorGUILayout.IntField("(*) Cell Size", CellSize, EditorStyles.miniTextField);
             PixelsPerUnit = EditorGUILayout.IntField("(*) Pixels Per Unit", PixelsPerUnit, EditorStyles.miniTextField);
             GUILayout.Label("Do not change unless you know what you are doing. The default is the same as the demo Tile Pallete.", EditorStyles.helpBox);
-            GUILayout.Label("\nDrag n' Drop a Tile Pallete you wish to use:", EditorStyles.boldLabel);
+
         }
 
+
+        GUILayout.Label("\nDrag n' Drop a Tile Pallete you wish to use:", EditorStyles.boldLabel);
         DropZone("Tileset", 50, 50);
 
         if (!canGenerate)
@@ -138,8 +142,13 @@ public class GenerationWindow : EditorWindow
             GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
             newTilemap.GetComponent<Transform>().SetParent(newGrid.transform);
 
-            newGrid.AddComponent<TilemapGenerator>();
+            newTilemap.AddComponent<TilemapGenerator>();
+            newTilemap.GetComponent<TilemapGenerator>().SetGrid(grid[0], grid[1]);
             newGrid.GetComponent<Grid>().cellSize = new Vector3(CellSize, CellSize, 0);
+            newTilemap.AddComponent<TilemapRenderer>();
+
+
+            
         }
         GUI.enabled = true;
 
