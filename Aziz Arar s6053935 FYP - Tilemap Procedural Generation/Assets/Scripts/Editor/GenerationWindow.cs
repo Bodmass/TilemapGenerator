@@ -16,6 +16,7 @@ public class GenerationWindow : EditorWindow
     static string[] perspectiveOptions = new string[] { "2D Tilemap", "2D Platformer", "Isometric" };
     static string[] levelOptions = new string[] { "World Map", "Dungeon", "Town" };
     TileBase tileBase;
+    Vector2 scrollPos = Vector2.zero;
 
     public static object[] DropZone(string title, int w, int h)
     {
@@ -48,7 +49,15 @@ public class GenerationWindow : EditorWindow
 
     void OnGUI ()
     {
-        
+        float width = this.position.width;
+        float height = this.position.height;
+
+        float viewWidth = 1024;
+        float viewHeight = 768;
+
+        scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.Width(width), GUILayout.Height(height));
+
+        //
         bool canGenerate = true;
         GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.27\n", EditorStyles.centeredGreyMiniLabel);
 
@@ -152,7 +161,8 @@ public class GenerationWindow : EditorWindow
         }
         GUI.enabled = true;
 
-
+        //
+        GUILayout.EndScrollView();
         
     }
 
