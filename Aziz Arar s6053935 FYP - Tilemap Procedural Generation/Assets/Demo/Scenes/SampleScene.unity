@@ -315,8 +315,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59cd0536df3f4c040b87339f2a33e40d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridX: 32
-  gridY: 32
+  gridX: 128
+  gridY: 128
   Shore: {fileID: 11400000, guid: 03f2886913990734685c68d682fa7a85, type: 2}
   Water: {fileID: 11400000, guid: 49731fcaaf55707498bc06facea6914c, type: 2}
   Grass: {fileID: 11400000, guid: e8b141cc72053cf4097586669006f33b, type: 2}

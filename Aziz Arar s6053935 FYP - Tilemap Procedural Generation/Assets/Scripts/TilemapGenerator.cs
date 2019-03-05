@@ -2,6 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Unity.Jobs;
+using Unity.Collections;
+
+public struct PerlinJob : IJobParallelFor
+{
+    public float size;
+    public int gridX;
+    public int gridY;
+    public int offsetX;
+    public int offsetY;
+
+    public NativeArray<Vector3Int> positions;
+    public NativeArray<float> heights;
+    public void Execute(int i)
+    {
+        Vector3Int pos = positions[i];
+        pos.x = i % gridX;
+        pos.y = i / gridY;
+
+        float height = Mathf.PerlinNoise(((float)pos.x / size) + offsetX, ((float)pos.y / size) + offsetY);
+
+        positions[i] = pos;
+        heights[i] = height;
+    }
+}
 
 public class TilemapGenerator : MonoBehaviour {
 
@@ -23,16 +48,48 @@ public class TilemapGenerator : MonoBehaviour {
     private int offsetX = 0;
     private int offsetY = 0;
 
-
+    private PerlinJob job;
+    private JobHandle handle;
+    private int arrayLength;
+    private TileBase[] tileArray;
+    private Vector3Int[] positions;
+    private float[] heights;
 
     // Use this for initialization
 
-    private void Awake()
+    private void Start()
     {
+        arrayLength = gridX * gridY;
+        positions = new Vector3Int[arrayLength];
+        heights = new float[arrayLength];
+        tileArray =  new TileBase[arrayLength];
+
         thisMap = GetComponent<Tilemap>();
-    }
-    void Start () {
+
+        job = new PerlinJob
+        {
+            size = size,
+            offsetX = offsetX,
+            offsetY = offsetY,
+            gridX = gridX,
+            gridY = gridY,
+            heights = new NativeArray<float>(arrayLength, Allocator.Persistent),
+            positions = new NativeArray<Vector3Int>(arrayLength, Allocator.Persistent)
+        };
+
         PerlinNoise();
+    }
+
+    private void OnDisable()
+    {
+        handle.Complete();
+        job.heights.Dispose();
+        job.positions.Dispose();
+    }
+
+    void Update ()
+    {
+        
     }
 	
     public void SetGrid(int i, int j)
@@ -48,32 +105,41 @@ public class TilemapGenerator : MonoBehaviour {
         PerlinNoise();
     }
 
+
+
     void PerlinNoise()
     {
-        offsetX = (int)Random.Range(-1000f, 1000f);
-        offsetY = (int)Random.Range(-1000f, 1000f);
+        job.offsetX = (int)Random.Range(-1000f, 1000f);
+        job.offsetY = (int)Random.Range(-1000f, 1000f);
 
-        Vector3Int[] positions = new Vector3Int[gridX * gridY];
-        TileBase[] tileArray = new TileBase[positions.Length];
+
+        handle = job.Schedule(arrayLength, 1);
+
+        handle.Complete();
+
+        job.positions.CopyTo(positions);
+        job.heights.CopyTo(heights);
+
+
         //seed = (int)Random.Range(0f, 32f);
-        for (int index = 0; index < positions.Length; index++)
+        for (int index = 0; index < arrayLength; ++index)
         {
 
-            //Debug.Log(seed);
+           // Debug.Log(seed);
 
             //positions[index] = new Vector3Int(index % (gridX), index / (gridY), 0);
-            positions[index].x = index % gridX;
-            positions[index].y = index / gridY;
+            //positions[index].x = index % gridX;
+            //positions[index].y = index / gridY;
 
-            float height = Mathf.PerlinNoise(((float)positions[index].x / size) + offsetX, ((float)positions[index].y / size) + offsetY);
+            //float height = Mathf.PerlinNoise(((float)positions[index].x / size) + offsetX, ((float)positions[index].y / size) + offsetY);
 
 
 
-            if(height >grassheight)
+            if (heights[index] > grassheight)
             {
                 tileArray[index] = Grass;
             }
-            else if(height > shoreheight)
+            else if(heights[index] > shoreheight)
             {
                 tileArray[index] = Shore;
             }
@@ -81,11 +147,9 @@ public class TilemapGenerator : MonoBehaviour {
             {
                 tileArray[index] = Water;
             }
-
-
-            thisMap.SetTile(positions[index], tileArray[index]);
         }
-        
+
+        thisMap.SetTiles(positions, tileArray);
     }
 
 
