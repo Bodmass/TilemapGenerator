@@ -15,26 +15,36 @@ public class GenerationWindow : EditorWindow
     static string[] creationModeOptions = new string[] { "Simple", "Advanced" };
     static string[] perspectiveOptions = new string[] { "2D Tilemap", "2D Platformer", "Isometric" };
     static string[] levelOptions = new string[] { "World Map", "Dungeon", "Town" };
-    TileBase tileBase;
+
+    GridPalette palette;
+    Object obj_Water;
+    Object obj_Shore;
+    Object obj_Grass;
+    Object obj_Mountain;
     Vector2 scrollPos = Vector2.zero;
 
-    public static object[] DropZone(string title, int w, int h)
+    public static object[] DropZone(string title, int w, int h, TileBase p)
     {
-        GUILayout.Box(title, GUILayout.Width(w), GUILayout.Height(h));
 
+        GUILayout.Box(title, GUILayout.Width(w), GUILayout.Height(h));
         EventType eventType = Event.current.type;
         bool isAccepted = false;
 
         if (eventType == EventType.DragUpdated || eventType == EventType.DragPerform)
         {
             DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+            
 
             if (eventType == EventType.DragPerform)
             {
                 DragAndDrop.AcceptDrag();
                 isAccepted = true;
+                //DragAndDrop.
+                p = DragAndDrop.objectReferences.GetValue(0) as TileBase;
             }
             Event.current.Use();
+
+
         }
 
         return isAccepted ? DragAndDrop.objectReferences : null;
@@ -76,6 +86,7 @@ public class GenerationWindow : EditorWindow
 
         perspectiveSelected = GUILayout.SelectionGrid(perspectiveSelected, perspectiveOptions, perspectiveOptions.Length, EditorStyles.radioButton);
 
+        
 
         if (perspectiveSelected == 0)
         {
@@ -137,12 +148,22 @@ public class GenerationWindow : EditorWindow
 
 
         GUILayout.Label("\nDrag n' Drop a Tile Pallete you wish to use:", EditorStyles.boldLabel);
-        DropZone("Tileset", 50, 50);
+        //DropZone("Water", 75, 50, Water);
+        //DropZone("Grass", 75, 50, Grass);
+        //DropZone("Shore", 75, 50, Shore);
+        //DropZone("Mountain", 75, 50, Mountain);
+
+
+        obj_Grass = EditorGUILayout.ObjectField("Grass", obj_Grass, typeof(TileBase), true);
+        obj_Water = EditorGUILayout.ObjectField("Water", obj_Water, typeof(TileBase), true);
+        obj_Shore = EditorGUILayout.ObjectField("Shore", obj_Shore, typeof(TileBase), true);
+        obj_Mountain = EditorGUILayout.ObjectField("Mountain", obj_Mountain, typeof(TileBase), true);
 
         if (!canGenerate)
         {
             GUI.enabled = false;
         }
+
         if (GUILayout.Button("Generate", EditorStyles.miniButton))
         {
             Debug.Log("Generate");
@@ -156,8 +177,13 @@ public class GenerationWindow : EditorWindow
             newGrid.GetComponent<Grid>().cellSize = new Vector3(CellSize, CellSize, 0);
             newTilemap.AddComponent<TilemapRenderer>();
 
+            newTilemap.GetComponent<TilemapGenerator>().Water = obj_Water as TileBase;
+            newTilemap.GetComponent<TilemapGenerator>().Shore = obj_Shore as TileBase;
+            newTilemap.GetComponent<TilemapGenerator>().Grass = obj_Grass as TileBase;
+            newTilemap.GetComponent<TilemapGenerator>().Mountain = obj_Mountain as TileBase;
 
-            
+
+
         }
         GUI.enabled = true;
 

@@ -33,10 +33,10 @@ public class TilemapGenerator : MonoBehaviour {
     [SerializeField] private int gridX = 32;
     [SerializeField] private int gridY = 32;
     private Tilemap thisMap;
-    [SerializeField] private TileBase Shore;
-    [SerializeField] private TileBase Water;
-    [SerializeField] private TileBase Grass;
-    [SerializeField] private TileBase Mountain;
+    [SerializeField] public TileBase Shore;
+    [SerializeField] public TileBase Water;
+    [SerializeField] public TileBase Grass;
+    [SerializeField] public TileBase Mountain;
 
     public float shoreheight = .45f;
     public float grassheight = .5f;
