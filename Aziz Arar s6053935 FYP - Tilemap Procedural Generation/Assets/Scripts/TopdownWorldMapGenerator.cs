@@ -28,16 +28,17 @@ public struct PerlinJob : IJobParallelFor
     }
 }
 
-public class TilemapGenerator : MonoBehaviour {
-
+public class TopdownWorldMapGenerator : MonoBehaviour {
+    [Header("Grid Layout")]
     [SerializeField] private int gridX = 32;
     [SerializeField] private int gridY = 32;
     private Tilemap thisMap;
+    [Header("Tiles")]
     [SerializeField] public TileBase Shore;
     [SerializeField] public TileBase Water;
     [SerializeField] public TileBase Grass;
     [SerializeField] public TileBase Mountain;
-
+    [Header("Perlin Settings")]
     public float shoreheight = .45f;
     public float grassheight = .5f;
 

@@ -72,7 +72,7 @@ LightmapSettings:
     m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
-    m_BakeBackend: 0
+    m_BakeBackend: 1
     m_PVRSampling: 1
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
@@ -113,16 +113,16 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &519420028
+--- !u!1 &992635413
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 519420032}
-  - component: {fileID: 519420031}
-  - component: {fileID: 519420029}
+  - component: {fileID: 992635416}
+  - component: {fileID: 992635415}
+  - component: {fileID: 992635414}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -130,22 +130,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &519420029
+--- !u!81 &992635414
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
+  m_GameObject: {fileID: 992635413}
   m_Enabled: 1
---- !u!20 &519420031
+--- !u!20 &992635415
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
+  m_GameObject: {fileID: 992635413}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
@@ -169,20 +169,20 @@ Camera:
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
-  m_TargetEye: 0
+  m_TargetEye: 3
   m_HDR: 1
-  m_AllowMSAA: 0
+  m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 0
+  m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &519420032
+--- !u!4 &992635416
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
+  m_GameObject: {fileID: 992635413}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -190,58 +190,58 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1058670661
+--- !u!1 &1025235383
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1058670663}
-  - component: {fileID: 1058670662}
+  - component: {fileID: 1025235385}
+  - component: {fileID: 1025235384}
   m_Layer: 0
-  m_Name: 'Grid: Untitled'
+  m_Name: 'Topdown : Dungeon : Grid: Untitled'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!156049354 &1058670662
+--- !u!156049354 &1025235384
 Grid:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1058670661}
+  m_GameObject: {fileID: 1025235383}
   m_Enabled: 1
   m_CellSize: {x: 1, y: 1, z: 0}
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
---- !u!4 &1058670663
+--- !u!4 &1025235385
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1058670661}
+  m_GameObject: {fileID: 1025235383}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1769008169}
+  - {fileID: 1861722775}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1769008168
+--- !u!1 &1861722774
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1769008169}
-  - component: {fileID: 1769008172}
-  - component: {fileID: 1769008171}
-  - component: {fileID: 1769008170}
+  - component: {fileID: 1861722775}
+  - component: {fileID: 1861722778}
+  - component: {fileID: 1861722777}
+  - component: {fileID: 1861722776}
   m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
@@ -249,25 +249,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1769008169
+--- !u!4 &1861722775
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1769008168}
+  m_GameObject: {fileID: 1861722774}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1058670663}
+  m_Father: {fileID: 1025235385}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!483693784 &1769008170
+--- !u!483693784 &1861722776
 TilemapRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1769008168}
+  m_GameObject: {fileID: 1861722774}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -304,32 +304,33 @@ TilemapRenderer:
   m_SortOrder: 0
   m_DetectChunkCullingBounds: 0
   m_MaskInteraction: 0
---- !u!114 &1769008171
+--- !u!114 &1861722777
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1769008168}
+  m_GameObject: {fileID: 1861722774}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59cd0536df3f4c040b87339f2a33e40d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7bd53f4e51c59414097b43e4a06c51bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gridX: 32
   gridY: 32
-  Shore: {fileID: 11400000, guid: 03f2886913990734685c68d682fa7a85, type: 2}
-  Water: {fileID: 11400000, guid: 49731fcaaf55707498bc06facea6914c, type: 2}
-  Grass: {fileID: 11400000, guid: e8b141cc72053cf4097586669006f33b, type: 2}
-  Mountain: {fileID: 11400000, guid: 7b82e3904a1629148bc492feb2df4efd, type: 2}
-  shoreheight: 0.45
-  grassheight: 0.5
-  size: 10
---- !u!1839735485 &1769008172
+  Floor: {fileID: 11400000, guid: d9f0fae46d1f0984b83fb5da0a74788c, type: 2}
+  Walls: {fileID: 11400000, guid: aeb7f6dc8f1b40e4f92061866b1c1646, type: 2}
+  Min_Leaf_Size: 6
+  Max_Leaf_Size: 10
+  floorTile: {fileID: 1026590829717216, guid: 678fa0076e0639145bc7b07a46821d97, type: 2}
+  heights: []
+  minRoomSize: 6
+  maxRoomSize: 10
+--- !u!1839735485 &1861722778
 Tilemap:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1769008168}
+  m_GameObject: {fileID: 1861722774}
   m_Enabled: 1
   m_Tiles: {}
   m_AnimatedTiles: {}
@@ -337,7 +338,7 @@ Tilemap:
   m_TileSpriteArray: []
   m_TileMatrixArray: []
   m_TileColorArray: []
-  m_AnimationFrameRate: 1
+  m_AnimationFrameRate: 60
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Origin: {x: 0, y: 0, z: 0}
   m_Size: {x: 0, y: 0, z: 1}

@@ -94,7 +94,7 @@ public class GenerationWindow : EditorWindow
             levelSelected = GUILayout.SelectionGrid(levelSelected, levelOptions, levelOptions.Length, EditorStyles.radioButton);
         }
 
-        if (perspectiveSelected == 0 && levelSelected == 0)
+        if (perspectiveSelected == 0 && levelSelected != 2)
         {
             GUILayout.Label(" ", EditorStyles.miniLabel);
 
@@ -147,44 +147,75 @@ public class GenerationWindow : EditorWindow
         }
 
 
-        GUILayout.Label("\nDrag n' Drop a Tile Pallete you wish to use:", EditorStyles.boldLabel);
+
         //DropZone("Water", 75, 50, Water);
         //DropZone("Grass", 75, 50, Grass);
         //DropZone("Shore", 75, 50, Shore);
         //DropZone("Mountain", 75, 50, Mountain);
 
+        if (perspectiveSelected == 0 && levelSelected == 0)
+        {
+            GUILayout.Label("\nDrag n' Drop the Tiles you wish to use:", EditorStyles.boldLabel);
+            obj_Grass = EditorGUILayout.ObjectField("Grass", obj_Grass, typeof(TileBase), true);
+            obj_Water = EditorGUILayout.ObjectField("Water", obj_Water, typeof(TileBase), true);
+            obj_Shore = EditorGUILayout.ObjectField("Shore", obj_Shore, typeof(TileBase), true);
+            obj_Mountain = EditorGUILayout.ObjectField("Mountain", obj_Mountain, typeof(TileBase), true);
+        }
+        if (perspectiveSelected == 0 && levelSelected == 1)
+        {
+            GUILayout.Label("\nDrag n' Drop the Tiles you wish to use:", EditorStyles.boldLabel);
+            obj_Grass = EditorGUILayout.ObjectField("Floor", obj_Grass, typeof(TileBase), true);
+            obj_Water = EditorGUILayout.ObjectField("Walls", obj_Water, typeof(TileBase), true);
+        }
 
-        obj_Grass = EditorGUILayout.ObjectField("Grass", obj_Grass, typeof(TileBase), true);
-        obj_Water = EditorGUILayout.ObjectField("Water", obj_Water, typeof(TileBase), true);
-        obj_Shore = EditorGUILayout.ObjectField("Shore", obj_Shore, typeof(TileBase), true);
-        obj_Mountain = EditorGUILayout.ObjectField("Mountain", obj_Mountain, typeof(TileBase), true);
 
-        if (!canGenerate)
+            if (!canGenerate)
         {
             GUI.enabled = false;
         }
 
         if (GUILayout.Button("Generate", EditorStyles.miniButton))
         {
-            Debug.Log("Generate");
 
-            GameObject newGrid = new GameObject("Grid: "+myLevel, typeof(Grid));
-            GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
-            newTilemap.GetComponent<Transform>().SetParent(newGrid.transform);
+            if (perspectiveSelected == 0 && levelSelected == 0) //World Map
+            {
+                Debug.Log("Generate Perlin Noise World Map");
 
-            newTilemap.AddComponent<TilemapGenerator>();
-            newTilemap.GetComponent<TilemapGenerator>().SetGrid(grid[0], grid[1]);
-            newGrid.GetComponent<Grid>().cellSize = new Vector3(CellSize, CellSize, 0);
-            newTilemap.AddComponent<TilemapRenderer>();
+                GameObject newGrid = new GameObject("Topdown : World Map : Grid: " + myLevel, typeof(Grid));
+                GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
+                newTilemap.GetComponent<Transform>().SetParent(newGrid.transform);
 
-            newTilemap.GetComponent<TilemapGenerator>().Water = obj_Water as TileBase;
-            newTilemap.GetComponent<TilemapGenerator>().Shore = obj_Shore as TileBase;
-            newTilemap.GetComponent<TilemapGenerator>().Grass = obj_Grass as TileBase;
-            newTilemap.GetComponent<TilemapGenerator>().Mountain = obj_Mountain as TileBase;
+                newTilemap.AddComponent<TopdownWorldMapGenerator>();
+                newTilemap.GetComponent<TopdownWorldMapGenerator>().SetGrid(grid[0], grid[1]);
+                newGrid.GetComponent<Grid>().cellSize = new Vector3(CellSize, CellSize, 0);
+                newTilemap.AddComponent<TilemapRenderer>();
 
+                newTilemap.GetComponent<TopdownWorldMapGenerator>().Water = obj_Water as TileBase;
+                newTilemap.GetComponent<TopdownWorldMapGenerator>().Shore = obj_Shore as TileBase;
+                newTilemap.GetComponent<TopdownWorldMapGenerator>().Grass = obj_Grass as TileBase;
+                newTilemap.GetComponent<TopdownWorldMapGenerator>().Mountain = obj_Mountain as TileBase;
+                newTilemap.GetComponent<Tilemap>().animationFrameRate = 60f;
+            }
+            if (perspectiveSelected == 0 && levelSelected == 1) //Dungeon
+            {
 
+                Debug.Log("Generated BSP Dungeon");
 
+                GameObject newGrid = new GameObject("Topdown : Dungeon : Grid: " + myLevel, typeof(Grid));
+                GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
+                newTilemap.GetComponent<Transform>().SetParent(newGrid.transform);
+
+                newTilemap.AddComponent<TopdownDungeonGenerator>();
+                newTilemap.GetComponent<TopdownDungeonGenerator>().SetGrid(grid[0], grid[1]);
+                newGrid.GetComponent<Grid>().cellSize = new Vector3(CellSize, CellSize, 0);
+                newTilemap.AddComponent<TilemapRenderer>();
+
+                newTilemap.GetComponent<TopdownDungeonGenerator>().Floor = obj_Water as TileBase;
+                newTilemap.GetComponent<TopdownDungeonGenerator>().Walls = obj_Shore as TileBase;
+                newTilemap.GetComponent<Tilemap>().animationFrameRate = 60f;
+            }
         }
+
         GUI.enabled = true;
 
         //
