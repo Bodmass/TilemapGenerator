@@ -1,0 +1,30 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+public class TilemapGenerator : MonoBehaviour
+{ 
+
+
+    [SerializeField] protected int gridX = 32;
+    [SerializeField] protected int gridY = 32;
+    protected TileBase[] tileArray;
+    protected Vector3Int[] positions;
+    protected Tilemap thisMap;
+    protected int arrayLength;
+    public bool GenerateCollisionLayer = false;
+
+    public virtual void Regenerate()
+    {
+
+    }
+    protected virtual void GenerateCollisions()
+    {
+    }
+    public void SetGrid(int i, int j)
+    {
+        gridX = i;
+        gridY = j;
+    }
+}

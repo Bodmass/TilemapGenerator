@@ -317,12 +317,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridX: 32
   gridY: 32
+  GenerateCollisionLayer: 0
   Floor: {fileID: 11400000, guid: d9f0fae46d1f0984b83fb5da0a74788c, type: 2}
-  Walls: {fileID: 11400000, guid: aeb7f6dc8f1b40e4f92061866b1c1646, type: 2}
-  Min_Leaf_Size: 6
-  Max_Leaf_Size: 10
-  floorTile: {fileID: 1026590829717216, guid: 678fa0076e0639145bc7b07a46821d97, type: 2}
-  heights: []
+  Walls: {fileID: 11400000, guid: 5f05bd01ee93120468085edccc91b3f8, type: 2}
   minRoomSize: 6
   maxRoomSize: 10
 --- !u!1839735485 &1861722778

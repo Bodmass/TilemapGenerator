@@ -3,34 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class TopdownDungeonGenerator : MonoBehaviour
+public class TopdownDungeonGenerator : TilemapGenerator
 {
 
-    [Header("Grid Layout")]
-    [SerializeField] private int gridX = 32;
-    [SerializeField] private int gridY = 32;
 
     [Header("Tiles")]
-    private TileBase[] tileArray;
-    private Vector3Int[] positions;
-    private Tilemap thisMap;
-    private int arrayLength;
     [SerializeField] public TileBase Floor;
     [SerializeField] public TileBase Walls;
-    [SerializeField] public TileBase Test;
+
     [Header("BSP Settings")]
-    [SerializeField] private float Min_Leaf_Size = 5;
-    [SerializeField] private float Max_Leaf_Size = 20;
-    public List<Rect> CorridorList = new List<Rect>();
+    public int minRoomSize = 5;
+    public int maxRoomSize = 20;
+    private List<Rect> CorridorList = new List<Rect>();
 
-    public int minRoomSize, maxRoomSize;
 
-    public class SubDungeon
+    public class Leaf
     {
-        public SubDungeon left, right;
+        public Leaf left, right;
         public Rect rect;
         public Rect room = new Rect(-1, -1, 0, 0);
-        public int debugId;
+
 
 
 
@@ -75,7 +67,7 @@ public class TopdownDungeonGenerator : MonoBehaviour
 
                 // room position will be absolute in the board, not relative to the sub-dungeon
                 room = new Rect(rect.x + roomX, rect.y + roomY, roomWidth, roomHeight);
-                Debug.Log("Created room " + room + " in sub-dungeon " + debugId + " " + rect);
+
             }
         }
 
@@ -83,11 +75,9 @@ public class TopdownDungeonGenerator : MonoBehaviour
 
 
 
-        public SubDungeon(Rect mrect)
+        public Leaf(Rect mrect)
         {
             rect = mrect;
-            debugId = debugCounter;
-            debugCounter++;
 
         }
 
@@ -120,7 +110,7 @@ public class TopdownDungeonGenerator : MonoBehaviour
 
             if (Mathf.Min(rect.height, rect.width) / 2 < minRoomSize)
             {
-                Debug.Log("Sub-dungeon " + debugId + " will b e a leaf");
+
                 return false;
             }
             if (splitH)
@@ -129,16 +119,16 @@ public class TopdownDungeonGenerator : MonoBehaviour
                 // (since we are splitting horizontally)
                 int split = Random.Range(minRoomSize, (int)(rect.width - minRoomSize));
 
-                left = new SubDungeon(new Rect(rect.x, rect.y, rect.width, split));
-                right = new SubDungeon(
+                left = new Leaf(new Rect(rect.x, rect.y, rect.width, split));
+                right = new Leaf(
                   new Rect(rect.x, rect.y + split, rect.width, rect.height - split));
             }
             else
             {
                 int split = Random.Range(minRoomSize, (int)(rect.height - minRoomSize));
 
-                left = new SubDungeon(new Rect(rect.x, rect.y, split, rect.height));
-                right = new SubDungeon(
+                left = new Leaf(new Rect(rect.x, rect.y, split, rect.height));
+                right = new Leaf(
                   new Rect(rect.x + split, rect.y, rect.width - split, rect.height));
             }
 
@@ -146,7 +136,7 @@ public class TopdownDungeonGenerator : MonoBehaviour
         }
     }
 
-    public void ConnectRooms(SubDungeon left, SubDungeon right)
+    public void ConnectRooms(Leaf left, Leaf right)
     {
         Rect lroom = left.GetRoom();
         Rect rroom = right.GetRoom();
@@ -174,17 +164,17 @@ public class TopdownDungeonGenerator : MonoBehaviour
             if (Random.Range(0, 1) > 2)
             {
 
-                newCorridor.Add(new Rect(lpoint.x, lpoint.y, Mathf.Abs(w) + 1, 1));
+                CorridorList.Add(new Rect(lpoint.x, lpoint.y, Mathf.Abs(w) + 1, 1));
 
                 if (h < 0)
                 {
 
-                    newCorridor.Add(new Rect(rpoint.x, lpoint.y, 1, Mathf.Abs(h)));
+                    CorridorList.Add(new Rect(rpoint.x, lpoint.y, 1, Mathf.Abs(h)));
                 }
                 else
                 {
 
-                    newCorridor.Add(new Rect(rpoint.x, lpoint.y, 1, -Mathf.Abs(h)));
+                    CorridorList.Add(new Rect(rpoint.x, lpoint.y, 1, -Mathf.Abs(h)));
                 }
 
             }
@@ -194,16 +184,16 @@ public class TopdownDungeonGenerator : MonoBehaviour
                 if (h < 0)
                 {
 
-                    newCorridor.Add(new Rect(lpoint.x, lpoint.y, 1, Mathf.Abs(h)));
+                    CorridorList.Add(new Rect(lpoint.x, lpoint.y, 1, Mathf.Abs(h)));
                 }
                 else
                 {
 
-                    newCorridor.Add(new Rect(lpoint.x, rpoint.y, 1, Mathf.Abs(h)));
+                    CorridorList.Add(new Rect(lpoint.x, rpoint.y, 1, Mathf.Abs(h)));
                 }
             }
 
-            newCorridor.Add(new Rect(lpoint.x, rpoint.y, Mathf.Abs(w) + 1, 1));
+            CorridorList.Add(new Rect(lpoint.x, rpoint.y, Mathf.Abs(w) + 1, 1));
 
         }
 
@@ -211,32 +201,22 @@ public class TopdownDungeonGenerator : MonoBehaviour
         {
             if (h < 0)
             {
-                //thisMap.SetTile(new Vector3Int((int)lpoint.x, (int)lpoint.y, 0), Test);
-                newCorridor.Add(new Rect((int)lpoint.x, (int)lpoint.y, 1, Mathf.Abs(h)));
+
+                CorridorList.Add(new Rect((int)lpoint.x, (int)lpoint.y, 1, Mathf.Abs(h)));
             }
             else
             {
-                //thisMap.SetTile(new Vector3Int((int)rpoint.x, (int)rpoint.y, 0), Test);
-                newCorridor.Add(new Rect((int)rpoint.x, (int)rpoint.y, 1, Mathf.Abs(h)));
+
+                CorridorList.Add(new Rect((int)rpoint.x, (int)rpoint.y, 1, Mathf.Abs(h)));
             }
         }
 
-        foreach (Rect c in newCorridor)
-        {
-            for (int i = (int)c.x; i < c.xMax; i++)
-            {
-                for (int j = (int)c.y; j < c.yMax; j++)
-                {
-                    thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
 
-                }
-            }
-        }
 
     }
-    public void CreateBSP(SubDungeon subDungeon)
+    public void CreateBSP(Leaf subDungeon)
     {
-        Debug.Log("Splitting sub-dungeon " + subDungeon.debugId + ": " + subDungeon.rect);
+
         if (subDungeon.IAmLeaf())
         {
             // if the sub-dungeon is too large
@@ -247,9 +227,6 @@ public class TopdownDungeonGenerator : MonoBehaviour
 
                 if (subDungeon.Split(minRoomSize, maxRoomSize))
                 {
-                    Debug.Log("Splitted sub-dungeon " + subDungeon.debugId + " in "
-                      + subDungeon.left.debugId + ": " + subDungeon.left.rect + ", "
-                      + subDungeon.right.debugId + ": " + subDungeon.right.rect);
 
                     CreateBSP(subDungeon.left);
                     CreateBSP(subDungeon.right);
@@ -260,7 +237,7 @@ public class TopdownDungeonGenerator : MonoBehaviour
         }
     }
 
-    public void DrawRooms(SubDungeon subDungeon)
+    public void DrawRooms(Leaf subDungeon)
     {
         if (subDungeon == null)
         {
@@ -293,28 +270,16 @@ public class TopdownDungeonGenerator : MonoBehaviour
         }
     }
 
-    public void DrawCorridors(SubDungeon subdungeon)
+    public void DrawCorridors()
     {
-
-        if (subdungeon == null)
+        foreach (Rect c in CorridorList)
         {
-            return;
-        }
-
-        
-
-
-        DrawCorridors(subdungeon.left);
-        DrawCorridors(subdungeon.right);
-
-        foreach (Rect corridor in CorridorList)
-        {
-            for (int i = (int)corridor.x; i < corridor.xMax; i++)
+            for (int i = (int)c.x; i < c.xMax; i++)
             {
-                for (int j = (int)corridor.y; j < corridor.yMax; i++)
+                for (int j = (int)c.y; j < c.yMax; j++)
                 {
                     thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
-                    Debug.Log("Drawing Corridor Tile @ " + new Vector2Int(i, j));
+
                 }
             }
         }
@@ -326,18 +291,42 @@ public class TopdownDungeonGenerator : MonoBehaviour
         thisMap = GetComponent<Tilemap>();
         arrayLength = gridX * gridY;
         positions = new Vector3Int[arrayLength];
-
         tileArray = new TileBase[arrayLength];
-        SetupDungeon();
-        SubDungeon rootSubDungeon = new SubDungeon(new Rect(0, 0, gridX, gridY));
-        CreateBSP(rootSubDungeon);
-        rootSubDungeon.CreateRoom();
-        DrawRooms(rootSubDungeon);
 
-        //DrawCorridors(rootSubDungeon);
+        SetupDungeon();
+        Leaf currenDungeon = new Leaf(new Rect(0, 0, gridX, gridY));
+        CreateBSP(currenDungeon);
+        currenDungeon.CreateRoom();
+        DrawRooms(currenDungeon);
+        DrawCorridors();
+
+        if(GenerateCollisionLayer)
+        {
+            GenerateCollisions();
+        }
 
     }
 
+    protected override void GenerateCollisions()
+    {
+        GameObject collisionMap = new GameObject("CollisionMap", typeof(Tilemap));
+        collisionMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
+       
+        for (int i = 0; i < gridX; i++)
+            for(int j = 0; j < gridY; j++)
+            {
+                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Walls)
+                {
+                    collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i,j,0), Floor);
+                }
+            }
+
+        collisionMap.AddComponent<TilemapCollider2D>();
+        collisionMap.GetComponent<TilemapCollider2D>().usedByComposite = true;
+        collisionMap.AddComponent<Rigidbody2D>();
+        collisionMap.GetComponent<Rigidbody2D>().isKinematic = true;
+        collisionMap.AddComponent<CompositeCollider2D>();
+    }
     private void SetupDungeon()
     {
 
@@ -352,15 +341,22 @@ public class TopdownDungeonGenerator : MonoBehaviour
         thisMap.SetTiles(positions, tileArray);
     }
 
-    public void SetGrid(int i, int j)
-    {
-        gridX = i;
-        gridY = j;
-    }
 
-    public void Regenerate()
+    public override void Regenerate()
     {
-        //   BSP();
+        CorridorList.Clear();
+        SetupDungeon();
+        Leaf newDungeon = new Leaf(new Rect(0, 0, gridX, gridY));
+        CreateBSP(newDungeon);
+        newDungeon.CreateRoom();
+        DrawRooms(newDungeon);
+        DrawCorridors();
+
+        if (GenerateCollisionLayer)
+        {
+            GameObject.Destroy(GameObject.Find("CollisionMap"));
+            GenerateCollisions();
+        }
     }
 
     //http://www.rombdn.com/blog/2018/01/12/random-dungeon-bsp-unity/

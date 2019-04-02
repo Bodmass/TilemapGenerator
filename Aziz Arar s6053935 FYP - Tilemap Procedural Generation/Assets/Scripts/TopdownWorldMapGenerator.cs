@@ -28,11 +28,7 @@ public struct PerlinJob : IJobParallelFor
     }
 }
 
-public class TopdownWorldMapGenerator : MonoBehaviour {
-    [Header("Grid Layout")]
-    [SerializeField] private int gridX = 32;
-    [SerializeField] private int gridY = 32;
-    private Tilemap thisMap;
+public class TopdownWorldMapGenerator : TilemapGenerator{
     [Header("Tiles")]
     [SerializeField] public TileBase Shore;
     [SerializeField] public TileBase Water;
@@ -51,10 +47,8 @@ public class TopdownWorldMapGenerator : MonoBehaviour {
 
     private PerlinJob job;
     private JobHandle handle;
-    private int arrayLength;
-    private TileBase[] tileArray;
-    private Vector3Int[] positions;
     private float[] heights;
+
 
     // Use this for initialization
 
@@ -93,15 +87,10 @@ public class TopdownWorldMapGenerator : MonoBehaviour {
         
     }
 	
-    public void SetGrid(int i, int j)
-    {
-        gridX = i;
-        gridY = j;
-    }
 	// Update is called once per frame
 
 
-    public void Regenerate()
+    public override void Regenerate()
     {
         PerlinNoise();
     }
@@ -153,5 +142,26 @@ public class TopdownWorldMapGenerator : MonoBehaviour {
         thisMap.SetTiles(positions, tileArray);
     }
 
+
+    protected override void GenerateCollisions()
+    {
+        GameObject collisionMap = new GameObject("CollisionMap", typeof(Tilemap));
+        collisionMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
+
+        for (int i = 0; i < gridX; i++)
+            for (int j = 0; j < gridY; j++)
+            {
+                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Water)
+                {
+                    collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Mountain);
+                }
+            }
+
+        collisionMap.AddComponent<TilemapCollider2D>();
+        collisionMap.GetComponent<TilemapCollider2D>().usedByComposite = true;
+        collisionMap.AddComponent<Rigidbody2D>();
+        collisionMap.GetComponent<Rigidbody2D>().isKinematic = true;
+        collisionMap.AddComponent<CompositeCollider2D>();
+    }
 
 }

@@ -146,6 +146,8 @@ public class GenerationWindow : EditorWindow
 
         }
 
+        //EditorGUILayout.Toggle() <-- toggle Collision Layout
+
 
 
         //DropZone("Water", 75, 50, Water);
