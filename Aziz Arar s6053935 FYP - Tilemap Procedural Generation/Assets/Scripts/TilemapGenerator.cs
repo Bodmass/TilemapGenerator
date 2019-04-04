@@ -10,10 +10,12 @@ public class TilemapGenerator : MonoBehaviour
     [SerializeField] protected int gridX = 32;
     [SerializeField] protected int gridY = 32;
     protected TileBase[] tileArray;
+    //protected List<TileBase> tiles = new List<TileBase>();
     protected Vector3Int[] positions;
     protected Tilemap thisMap;
     protected int arrayLength;
     public bool GenerateCollisionLayer = false;
+    protected List<Rect> CorridorList = new List<Rect>();
 
     public virtual void Regenerate()
     {
@@ -27,4 +29,14 @@ public class TilemapGenerator : MonoBehaviour
         gridX = i;
         gridY = j;
     }
+
+    public Vector2 getGridSize()
+    {
+        return new Vector2(gridX, gridY);
+    }
+
+    //public virtual List<TileBase> GetTileList()
+    //{
+    //    return tiles;
+    //}
 }

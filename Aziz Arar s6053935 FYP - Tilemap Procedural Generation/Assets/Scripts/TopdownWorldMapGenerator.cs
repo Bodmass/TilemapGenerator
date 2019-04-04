@@ -73,6 +73,11 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         };
 
         PerlinNoise();
+
+        if (GenerateCollisionLayer)
+        {
+            GenerateCollisions();
+        }
     }
 
     private void OnDisable()
@@ -92,10 +97,30 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
     public override void Regenerate()
     {
+        CorridorList.Clear();
         PerlinNoise();
     }
 
+    protected override void GenerateCollisions()
+    {
+        GameObject collisionMap = new GameObject("CollisionMap", typeof(Tilemap));
+        collisionMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
 
+        for (int i = 0; i < gridX; i++)
+            for (int j = 0; j < gridY; j++)
+            {
+                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Water)
+                {
+                    collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Mountain);
+                }
+            }
+
+        collisionMap.AddComponent<TilemapCollider2D>();
+        collisionMap.GetComponent<TilemapCollider2D>().usedByComposite = true;
+        collisionMap.AddComponent<Rigidbody2D>();
+        collisionMap.GetComponent<Rigidbody2D>().isKinematic = true;
+        collisionMap.AddComponent<CompositeCollider2D>();
+    }
 
     void PerlinNoise()
     {
@@ -140,28 +165,6 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         }
 
         thisMap.SetTiles(positions, tileArray);
-    }
-
-
-    protected override void GenerateCollisions()
-    {
-        GameObject collisionMap = new GameObject("CollisionMap", typeof(Tilemap));
-        collisionMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
-
-        for (int i = 0; i < gridX; i++)
-            for (int j = 0; j < gridY; j++)
-            {
-                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Water)
-                {
-                    collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Mountain);
-                }
-            }
-
-        collisionMap.AddComponent<TilemapCollider2D>();
-        collisionMap.GetComponent<TilemapCollider2D>().usedByComposite = true;
-        collisionMap.AddComponent<Rigidbody2D>();
-        collisionMap.GetComponent<Rigidbody2D>().isKinematic = true;
-        collisionMap.AddComponent<CompositeCollider2D>();
     }
 
 }

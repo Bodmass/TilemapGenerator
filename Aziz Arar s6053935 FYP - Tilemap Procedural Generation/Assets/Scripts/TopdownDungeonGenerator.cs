@@ -9,13 +9,14 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
     [Header("Tiles")]
     [SerializeField] public TileBase Floor;
-    [SerializeField] public TileBase Walls;
+    [SerializeField] public TileBase BG;
+    [SerializeField] public TileBase Wall;
 
     [Header("BSP Settings")]
     public int minRoomSize = 5;
     public int maxRoomSize = 20;
-    private List<Rect> CorridorList = new List<Rect>();
 
+    
 
     public class Leaf
     {
@@ -70,10 +71,6 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
             }
         }
-
-        private static int debugCounter = 0;
-
-
 
         public Leaf(Rect mrect)
         {
@@ -300,12 +297,31 @@ public class TopdownDungeonGenerator : TilemapGenerator
         DrawRooms(currenDungeon);
         DrawCorridors();
 
+
         if(GenerateCollisionLayer)
         {
             GenerateCollisions();
         }
 
+        PlaceWalls();
+
     }
+
+    private void PlaceWalls()
+    {
+        for (int i = 0; i < gridX; i++)
+            for (int j = 0; j < gridY; j++)
+            {
+                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Floor)
+                {
+                    if(thisMap.GetTile(new Vector3Int(i, j+1, 0)) == BG)
+                    {
+                        thisMap.SetTile(new Vector3Int(i, j+1, 0), Wall);
+                    }
+                }
+            }
+    }
+
 
     protected override void GenerateCollisions()
     {
@@ -315,7 +331,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
         for (int i = 0; i < gridX; i++)
             for(int j = 0; j < gridY; j++)
             {
-                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Walls)
+                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == BG)
                 {
                     collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i,j,0), Floor);
                 }
@@ -335,7 +351,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
             positions[index] = new Vector3Int(index % (gridX), index / (gridY), 0);
             positions[index].x = index % gridX;
             positions[index].y = index / gridY;
-            tileArray[index] = Walls;
+            tileArray[index] = BG;
 
         }
         thisMap.SetTiles(positions, tileArray);
