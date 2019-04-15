@@ -14,7 +14,7 @@ public class GenerationWindow : EditorWindow
     int i_PixelPerUnit = 32;
     static string[] s_CreationModeOptions = new string[] { "Simple", "Advanced" };
     static string[] s_PerspectiveOptions = new string[] { "2D Tilemap", "2D Platformer", "Isometric" };
-    static string[] s_LevelOptions = new string[] { "World Map", "Dungeon", "Town" };
+    static string[] s_TopdownLevelOptions = new string[] { "World Map", "Dungeon", "Town" };
 
 
     private bool b_CollisionLayer = false;
@@ -72,7 +72,7 @@ public class GenerationWindow : EditorWindow
 
         //
         bool canGenerate = true;
-        GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.27\n", EditorStyles.centeredGreyMiniLabel);
+        GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.4\n", EditorStyles.centeredGreyMiniLabel);
 
         GUILayout.Label("\nCreation Mode:", EditorStyles.boldLabel);
 
@@ -94,10 +94,10 @@ public class GenerationWindow : EditorWindow
         if (i_PerspectiveSelected == 0)
         {
             GUILayout.Label("\nLevel Type:", EditorStyles.boldLabel);
-            i_LevelSelected = GUILayout.SelectionGrid(i_LevelSelected, s_LevelOptions, s_LevelOptions.Length, EditorStyles.radioButton);
+            i_LevelSelected = GUILayout.SelectionGrid(i_LevelSelected, s_TopdownLevelOptions, s_TopdownLevelOptions.Length, EditorStyles.radioButton);
         }
 
-        if (i_PerspectiveSelected == 0 && i_LevelSelected != 2)
+        if (i_PerspectiveSelected != 2 && i_LevelSelected != 2)
         {
             GUILayout.Label(" ", EditorStyles.miniLabel);
 
@@ -125,14 +125,29 @@ public class GenerationWindow : EditorWindow
                 else
                 {
                     GUILayout.Label("\nThis will generate " + (i_Grid[0] * i_Grid[1]).ToString() + " cells.\n", EditorStyles.miniLabel);
+                    if ((i_Grid[0] * i_Grid[1]) >= (128*128))
+                    {
+                        GUILayout.Label("\nWarning: You are exceeding "+(128*128)+" tiles\n this may cause lag depending on your system\n", EditorStyles.miniLabel);
+                    }
+                        
                 }
 
 
             }
             else
             {
-                GUILayout.Label("\nError: The size limit in each axis is 256!", EditorStyles.miniLabel);
-                canGenerate = false;
+                if (i_Grid[0] >= 256)
+                {
+                    i_Grid[0] = 256;
+                }
+
+                if (i_Grid[1] >= 256)
+                {
+                    i_Grid[1] = 256;
+                }
+
+                //GUILayout.Label("\nError: The size limit in each axis is 256!", EditorStyles.miniLabel);
+                
             }
         }
         else
@@ -163,12 +178,6 @@ public class GenerationWindow : EditorWindow
         //<-- toggle Collision Layout
 
 
-
-        //DropZone("Water", 75, 50, Water);
-        //DropZone("Grass", 75, 50, Grass);
-        //DropZone("Shore", 75, 50, Shore);
-        //DropZone("Mountain", 75, 50, Mountain);
-
         if (i_PerspectiveSelected == 0 && i_LevelSelected == 0)
         {
             GUILayout.Label("\nDrag n' Drop the Tiles you wish to use:", EditorStyles.boldLabel);
@@ -184,6 +193,11 @@ public class GenerationWindow : EditorWindow
             obj_Tile2 = EditorGUILayout.ObjectField("BG", obj_Tile2, typeof(TileBase), true);
             obj_Tile1 = EditorGUILayout.ObjectField("Walls", obj_Tile1, typeof(TileBase), true);
         }
+        if (i_PerspectiveSelected == 1)
+        {
+            GUILayout.Label("\nDrag n' Drop the Tiles you wish to use:", EditorStyles.boldLabel);
+            obj_Tile3 = EditorGUILayout.ObjectField("Terrain", obj_Tile1, typeof(TileBase), true);
+        }
 
 
             if (!canGenerate)
@@ -196,7 +210,7 @@ public class GenerationWindow : EditorWindow
 
             if (i_PerspectiveSelected == 0 && i_LevelSelected == 0) //World Map
             {
-                Debug.Log("Generate Perlin Noise World Map");
+                Debug.Log("Topdown : World Map : Grid: " + s_LevelName + "will now generate a World Map using Perlin Noise");
 
                 GameObject newGrid = new GameObject("Topdown : World Map : Grid: " + s_LevelName, typeof(Grid));
                 GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
@@ -215,8 +229,7 @@ public class GenerationWindow : EditorWindow
             }
             if (i_PerspectiveSelected == 0 && i_LevelSelected == 1) //Dungeon
             {
-
-                Debug.Log("Generated BSP Dungeon");
+                Debug.Log("Topdown: Dungeon : Grid: " + s_LevelName + "will now generate a Dungeon using Binary Space Partitioning");
 
                 GameObject newGrid = new GameObject("Topdown : Dungeon : Grid: " + s_LevelName, typeof(Grid));
                 GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
@@ -230,6 +243,22 @@ public class GenerationWindow : EditorWindow
                 newTilemap.GetComponent<TopdownDungeonGenerator>().Wall = obj_Tile1 as TileBase;
                 newTilemap.GetComponent<TopdownDungeonGenerator>().BG = obj_Tile2 as TileBase;
                 newTilemap.GetComponent<TopdownDungeonGenerator>().Floor = obj_Tile3 as TileBase;
+                newTilemap.GetComponent<Tilemap>().animationFrameRate = 60f;
+            }
+            if (i_PerspectiveSelected == 1 && i_LevelSelected == 1) //Platformer
+            {
+                Debug.Log("Sidescrolling: Level : Grid: " + s_LevelName + "will now generate a Sidescrolling Level");// using Binary Space Partitioning");
+
+                GameObject newGrid = new GameObject("Sidescrolling : Level : Grid: " + s_LevelName, typeof(Grid));
+                GameObject newTilemap = new GameObject("Tilemap", typeof(Tilemap));
+                newTilemap.GetComponent<Transform>().SetParent(newGrid.transform);
+
+                newTilemap.AddComponent<PlatformerGenerator>();
+                newTilemap.GetComponent<PlatformerGenerator>().SetGrid(i_Grid[0], i_Grid[1]);
+                newGrid.GetComponent<Grid>().cellSize = new Vector3(i_CellSize, i_CellSize, 0);
+                newTilemap.AddComponent<TilemapRenderer>();
+
+                newTilemap.GetComponent<PlatformerGenerator>().Terrain = obj_Tile1 as TileBase;
                 newTilemap.GetComponent<Tilemap>().animationFrameRate = 60f;
             }
         }
