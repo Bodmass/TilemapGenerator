@@ -43,7 +43,7 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
     private float seed = 0;
     bool isGenerated = false;
 
-    [SerializeField] private float size = 10f;
+    private float size = 20f;
     private int offsetX = 0;
     private int offsetY = 0;
 
@@ -51,7 +51,8 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
     private JobHandle handle;
     private float[] heights;
     [Header("Misc")]
-    private bool GenerateFoliageLayer = true;
+    [SerializeField] private bool GenerateFoliageLayer = false;
+    [SerializeField] private float foliageDensity = 0.2f;
 
     // Use this for initialization
 
@@ -77,15 +78,7 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
         PerlinNoise();
 
-        if (GenerateCollisionLayer)
-        {
-            GenerateCollisions();
-        }
 
-        if (GenerateFoliageLayer)
-        {
-            GenerateFoliage();
-        }
     }
 
     private void OnDisable()
@@ -99,14 +92,25 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
     {
         
     }
-	
-	// Update is called once per frame
 
 
     public override void Regenerate()
     {
-        CorridorList.Clear();
+        Debug.Log("Regenerating...");
+        if (GenerateCollisionLayer)
+        {
+            GameObject.Destroy(GameObject.Find("CollisionMap"));
+        }
+
+        if (GenerateFoliageLayer)
+        {
+            GameObject.Destroy(GameObject.Find("FoliageMap"));
+
+        }
+        //CorridorList.Clear();
         PerlinNoise();
+
+
     }
 
     protected override void GenerateCollisions()
@@ -130,9 +134,24 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         collisionMap.AddComponent<CompositeCollider2D>();
     }
 
+    public void EnableFoliage(bool yn)
+    {
+        GenerateFoliageLayer = yn;
+    }
+
+    public void SetFoliageDensity(float density)
+    {
+        foliageDensity = density;
+
+        if (foliageDensity > 1)
+            foliageDensity = 1;
+        if (foliageDensity < 0)
+            foliageDensity = 0;
+    }
+
     private void GenerateFoliage()
     {
-        GameObject foliageMap = new GameObject("foliageMap", typeof(Tilemap));
+        GameObject foliageMap = new GameObject("FoliageMap", typeof(Tilemap));
         foliageMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
 
         for (int i = 0; i < gridX; i++)
@@ -140,17 +159,22 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
             {
                 if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Grass)
                 {
-                    foliageMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Foliage);
+                    float ChanceofFoliage = Random.Range(0f, 1f);
+                    if (ChanceofFoliage <= foliageDensity)
+                    {
+                        foliageMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Foliage);
+                    }
                 }
             }
 
         foliageMap.AddComponent<TilemapRenderer>();
+
     }
 
     void PerlinNoise()
     {
-        job.offsetX = (int)Random.Range(-1000f, 1000f);
-        job.offsetY = (int)Random.Range(-1000f, 1000f);
+        job.offsetX = (int)Random.Range(-10000f, 10000f);
+        job.offsetY = (int)Random.Range(-10000f, 10000f);
 
 
         handle = job.Schedule(arrayLength, 1);
@@ -160,20 +184,8 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         job.positions.CopyTo(positions);
         job.heights.CopyTo(heights);
 
-
-        //seed = (int)Random.Range(0f, 32f);
         for (int index = 0; index < arrayLength; ++index)
         {
-
-           // Debug.Log(seed);
-
-            //positions[index] = new Vector3Int(index % (gridX), index / (gridY), 0);
-            //positions[index].x = index % gridX;
-            //positions[index].y = index / gridY;
-
-            //float height = Mathf.PerlinNoise(((float)positions[index].x / size) + offsetX, ((float)positions[index].y / size) + offsetY);
-
-
 
             if (heights[index] > grassheight)
             {
@@ -190,6 +202,17 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         }
 
         thisMap.SetTiles(positions, tileArray);
+
+        if (GenerateCollisionLayer)
+        {
+            GenerateCollisions();
+        }
+
+        if (GenerateFoliageLayer)
+        {
+            GenerateFoliage();
+        }
     }
+
 
 }

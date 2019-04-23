@@ -12,11 +12,13 @@ public class TopdownDungeonGenerator : TilemapGenerator
     [SerializeField] public TileBase BG;
     [SerializeField] public TileBase Wall;
 
+    public bool GenerateWalls = false;
+
     [Header("BSP Settings")]
     public int minRoomSize = 5;
     public int maxRoomSize = 20;
 
-    
+
 
     public class Leaf
     {
@@ -29,7 +31,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
         public Rect GetRoom()
         {
-            if (IAmLeaf())
+            if (Leaflet())
             {
                 return room;
             }
@@ -59,7 +61,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
             {
                 right.CreateRoom();
             }
-            if (IAmLeaf())
+            if (Leaflet())
             {
                 int roomWidth = (int)Random.Range(rect.width / 2, rect.width - 2);
                 int roomHeight = (int)Random.Range(rect.height / 2, rect.height - 2);
@@ -78,7 +80,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
         }
 
-        public bool IAmLeaf()
+        public bool Leaflet()
         {
             return left == null && right == null;
         }
@@ -86,7 +88,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
         public bool Split(int minRoomSize, int maxRoomSize)
         {
-            if (!IAmLeaf())
+            if (!Leaflet())
             {
                 return false;
             }
@@ -133,6 +135,70 @@ public class TopdownDungeonGenerator : TilemapGenerator
         }
     }
 
+
+
+    // Use this for initialization
+    void Start()
+    {
+        CorridorList = new List<Rect>();
+        thisMap = GetComponent<Tilemap>();
+        arrayLength = gridX * gridY;
+        positions = new Vector3Int[arrayLength];
+        tileArray = new TileBase[arrayLength];
+
+        SetupDungeon();
+        Leaf currentDungeon = new Leaf(new Rect(0, 0, gridX, gridY));
+        CreateBSP(currentDungeon);
+        currentDungeon.CreateRoom();
+        DrawRooms(currentDungeon);
+        DrawCorridors();
+
+
+        if (GenerateCollisionLayer)
+        {
+            GenerateCollisions();
+        }
+
+        if (GenerateWalls)
+            PlaceWalls();
+
+    }
+
+    private void SetupDungeon()
+    {
+
+        for (int index = 0; index < arrayLength; ++index)
+        {
+            positions[index] = new Vector3Int(index % (gridX), index / (gridY), 0);
+            positions[index].x = index % gridX;
+            positions[index].y = index / gridY;
+            tileArray[index] = BG;
+
+        }
+        thisMap.SetTiles(positions, tileArray);
+    }
+    public void CreateBSP(Leaf subDungeon)
+    {
+
+        if (subDungeon.Leaflet())
+        {
+            // if the sub-dungeon is too large
+            if (subDungeon.rect.width > maxRoomSize
+              || subDungeon.rect.height > maxRoomSize
+              || Random.Range(0.0f, 1.0f) > 0.25)
+            {
+
+                if (subDungeon.Split(minRoomSize, maxRoomSize))
+                {
+
+                    CreateBSP(subDungeon.left);
+                    CreateBSP(subDungeon.right);
+
+
+                }
+            }
+        }
+    }
     public void ConnectRooms(Leaf left, Leaf right)
     {
         Rect lroom = left.GetRoom();
@@ -211,36 +277,13 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
 
     }
-    public void CreateBSP(Leaf subDungeon)
-    {
-
-        if (subDungeon.IAmLeaf())
-        {
-            // if the sub-dungeon is too large
-            if (subDungeon.rect.width > maxRoomSize
-              || subDungeon.rect.height > maxRoomSize
-              || Random.Range(0.0f, 1.0f) > 0.25)
-            {
-
-                if (subDungeon.Split(minRoomSize, maxRoomSize))
-                {
-
-                    CreateBSP(subDungeon.left);
-                    CreateBSP(subDungeon.right);
-
-
-                }
-            }
-        }
-    }
-
     public void DrawRooms(Leaf subDungeon)
     {
         if (subDungeon == null)
         {
             return;
         }
-        if (subDungeon.IAmLeaf())
+        if (subDungeon.Leaflet())
         {
 
 
@@ -251,7 +294,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
 
                     thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
-                    Debug.Log("Drawing Floor Tile @ " + new Vector2Int(i, j));
+                    //Debug.Log("Drawing Floor Tile @ " + new Vector2Int(i, j));
 
                 }
             }
@@ -262,11 +305,10 @@ public class TopdownDungeonGenerator : TilemapGenerator
             DrawRooms(subDungeon.left);
             DrawRooms(subDungeon.right);
 
-            if(subDungeon.left !=null && subDungeon.right != null)
+            if (subDungeon.left != null && subDungeon.right != null)
                 ConnectRooms(subDungeon.left, subDungeon.right);
         }
     }
-
     public void DrawCorridors()
     {
         foreach (Rect c in CorridorList)
@@ -281,32 +323,6 @@ public class TopdownDungeonGenerator : TilemapGenerator
             }
         }
     }
-    // Use this for initialization
-    void Start()
-    {
-        CorridorList = new List<Rect>();
-        thisMap = GetComponent<Tilemap>();
-        arrayLength = gridX * gridY;
-        positions = new Vector3Int[arrayLength];
-        tileArray = new TileBase[arrayLength];
-
-        SetupDungeon();
-        Leaf currenDungeon = new Leaf(new Rect(0, 0, gridX, gridY));
-        CreateBSP(currenDungeon);
-        currenDungeon.CreateRoom();
-        DrawRooms(currenDungeon);
-        DrawCorridors();
-
-
-        if(GenerateCollisionLayer)
-        {
-            GenerateCollisions();
-        }
-
-        PlaceWalls();
-
-    }
-
     private void PlaceWalls()
     {
         for (int i = 0; i < gridX; i++)
@@ -314,26 +330,24 @@ public class TopdownDungeonGenerator : TilemapGenerator
             {
                 if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Floor)
                 {
-                    if(thisMap.GetTile(new Vector3Int(i, j+1, 0)) == BG)
+                    if (thisMap.GetTile(new Vector3Int(i, j + 1, 0)) == BG)
                     {
-                        thisMap.SetTile(new Vector3Int(i, j+1, 0), Wall);
+                        thisMap.SetTile(new Vector3Int(i, j + 1, 0), Wall);
                     }
                 }
             }
     }
-
-
     protected override void GenerateCollisions()
     {
         GameObject collisionMap = new GameObject("CollisionMap", typeof(Tilemap));
         collisionMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
-       
+
         for (int i = 0; i < gridX; i++)
-            for(int j = 0; j < gridY; j++)
+            for (int j = 0; j < gridY; j++)
             {
                 if (thisMap.GetTile(new Vector3Int(i, j, 0)) == BG)
                 {
-                    collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i,j,0), Floor);
+                    collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Floor);
                 }
             }
 
@@ -343,21 +357,6 @@ public class TopdownDungeonGenerator : TilemapGenerator
         collisionMap.GetComponent<Rigidbody2D>().isKinematic = true;
         collisionMap.AddComponent<CompositeCollider2D>();
     }
-    private void SetupDungeon()
-    {
-
-        for (int index = 0; index < arrayLength; ++index)
-        {
-            positions[index] = new Vector3Int(index % (gridX), index / (gridY), 0);
-            positions[index].x = index % gridX;
-            positions[index].y = index / gridY;
-            tileArray[index] = BG;
-
-        }
-        thisMap.SetTiles(positions, tileArray);
-    }
-
-
     public override void Regenerate()
     {
         CorridorList.Clear();
@@ -374,6 +373,7 @@ public class TopdownDungeonGenerator : TilemapGenerator
             GenerateCollisions();
         }
     }
+
 
     //http://www.rombdn.com/blog/2018/01/12/random-dungeon-bsp-unity/
 }
