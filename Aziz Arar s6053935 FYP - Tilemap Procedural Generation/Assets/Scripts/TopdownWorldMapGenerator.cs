@@ -34,6 +34,8 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
     [SerializeField] public TileBase Water;
     [SerializeField] public TileBase Grass;
     [SerializeField] public TileBase Mountain;
+    [SerializeField] public TileBase Foliage;
+
     [Header("Perlin Settings")]
     public float shoreheight = .45f;
     public float grassheight = .5f;
@@ -48,7 +50,8 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
     private PerlinJob job;
     private JobHandle handle;
     private float[] heights;
-
+    [Header("Misc")]
+    private bool GenerateFoliageLayer = true;
 
     // Use this for initialization
 
@@ -77,6 +80,11 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         if (GenerateCollisionLayer)
         {
             GenerateCollisions();
+        }
+
+        if (GenerateFoliageLayer)
+        {
+            GenerateFoliage();
         }
     }
 
@@ -120,6 +128,23 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         collisionMap.AddComponent<Rigidbody2D>();
         collisionMap.GetComponent<Rigidbody2D>().isKinematic = true;
         collisionMap.AddComponent<CompositeCollider2D>();
+    }
+
+    private void GenerateFoliage()
+    {
+        GameObject foliageMap = new GameObject("foliageMap", typeof(Tilemap));
+        foliageMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
+
+        for (int i = 0; i < gridX; i++)
+            for (int j = 0; j < gridY; j++)
+            {
+                if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Grass)
+                {
+                    foliageMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Foliage);
+                }
+            }
+
+        foliageMap.AddComponent<TilemapRenderer>();
     }
 
     void PerlinNoise()

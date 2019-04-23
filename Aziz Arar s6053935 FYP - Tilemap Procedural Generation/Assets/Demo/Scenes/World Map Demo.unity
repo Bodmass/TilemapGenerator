@@ -287,6 +287,7 @@ MonoBehaviour:
   Water: {fileID: 11400000, guid: 49731fcaaf55707498bc06facea6914c, type: 2}
   Grass: {fileID: 11400000, guid: e8b141cc72053cf4097586669006f33b, type: 2}
   Mountain: {fileID: 11400000, guid: 7b82e3904a1629148bc492feb2df4efd, type: 2}
+  Foliage: {fileID: 11400000, guid: c65ecf117975c4340b09229eea40212e, type: 2}
   shoreheight: 0.45
   grassheight: 0.5
   size: 20
