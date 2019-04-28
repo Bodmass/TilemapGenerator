@@ -110,6 +110,21 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
         //CorridorList.Clear();
         PerlinNoise();
 
+        FixWater();
+    }
+
+    private void FixWater()
+    {
+        //for (int i = 0; i <gridX; i++)
+        //    for (int j = 0; j < gridY; j++)
+        //    {
+        //        if (thisMap.GetTile(new Vector3Int(i, j, 0)) == Water)
+        //        {
+
+        //            TileBase tile = thisMap.GetTile(new Vector3Int(i, j, 0));
+
+        //           tile.
+        //    }
 
     }
 
