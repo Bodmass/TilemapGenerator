@@ -337,7 +337,7 @@ public class GenerationWindow : EditorWindow
                 newGrid.GetComponent<Grid>().cellSize = new Vector3(i_CellSize, i_CellSize, 0);
                 newTilemap.AddComponent<TilemapRenderer>();
 
-                newTilemap.GetComponent<PlatformerGenerator>().Terrain = obj_Tile1 as TileBase;
+                newTilemap.GetComponent<PlatformerGenerator>().Grass = obj_Tile1 as TileBase;
                 newTilemap.GetComponent<Tilemap>().animationFrameRate = f_TilemapFrameRate;
 
                 if (b_CollisionLayer)
