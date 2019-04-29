@@ -17,7 +17,7 @@ public class GenerationWindow : EditorWindow
 
     private string s_LevelName = "Untitled";
     private static string[] s_CreationModeOptions = new string[] { "Simple", "Advanced" };
-    private static string[] s_PerspectiveOptions = new string[] { "2D Tilemap", "2D Platformer", "Isometric" };
+    private static string[] s_PerspectiveOptions = new string[] { "2D Topdown", "2D Platformer", "Isometric" };
     private static string[] s_TopdownLevelOptions = new string[] { "World Map", "Dungeon", "Town" };
 
     private bool b_CollisionLayer = true;
@@ -51,7 +51,7 @@ public class GenerationWindow : EditorWindow
         v2_ScrollPos = GUILayout.BeginScrollView(v2_ScrollPos, GUILayout.Width(width), GUILayout.Height(height));
 
         bool canGenerate = true;
-        GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.5\n", EditorStyles.centeredGreyMiniLabel);
+        GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.7\n", EditorStyles.centeredGreyMiniLabel);
 
         GUILayout.Label("\nCreation Mode:", EditorStyles.boldLabel);
 
@@ -76,7 +76,7 @@ public class GenerationWindow : EditorWindow
             i_LevelSelected = GUILayout.SelectionGrid(i_LevelSelected, s_TopdownLevelOptions, s_TopdownLevelOptions.Length, EditorStyles.radioButton);
         }
 
-        if (i_PerspectiveSelected != 2 && i_LevelSelected != 2)
+        if (i_PerspectiveSelected == 0 && i_LevelSelected != 2)
         {
             GUILayout.Label(" ", EditorStyles.miniLabel);
             if (i_CreationModeSelected == 1)
@@ -89,8 +89,11 @@ public class GenerationWindow : EditorWindow
                 GUILayout.Label(" ", EditorStyles.miniLabel);
             }
 
-            i_Grid[0] = EditorGUILayout.IntField("Grid Size", i_Grid[0], EditorStyles.miniTextField);
-            i_Grid[1] = i_Grid[0];
+
+                i_Grid[0] = EditorGUILayout.IntField("Grid Size", i_Grid[0], EditorStyles.miniTextField);
+                i_Grid[1] = i_Grid[0];
+            
+
             //i_Grid[1] = EditorGUILayout.IntField("Grid Y", i_Grid[1], EditorStyles.miniTextField);
 
             if (i_Grid[0] <= 0)
@@ -150,7 +153,73 @@ public class GenerationWindow : EditorWindow
 
             }
         }
-        else
+
+        if (i_PerspectiveSelected == 1)
+        {
+            GUILayout.Label(" ", EditorStyles.miniLabel);
+            if (i_CreationModeSelected == 1)
+            {
+                b_DisableGridCap = EditorGUILayout.Toggle("(*) Disable Grid Cap", b_DisableGridCap);
+                if (b_DisableGridCap)
+                {
+                    GUILayout.Label("\nWarning: You have disabled the Grid Cap, this is not recommended. Use at your own risk.", EditorStyles.miniLabel);
+                }
+                GUILayout.Label(" ", EditorStyles.miniLabel);
+            }
+
+
+            i_Grid[0] = EditorGUILayout.IntField("Grid Size X", i_Grid[0], EditorStyles.miniTextField);
+            i_Grid[1] = EditorGUILayout.IntField("Grid Size Y", i_Grid[1], EditorStyles.miniTextField);
+
+
+            //i_Grid[1] = EditorGUILayout.IntField("Grid Y", i_Grid[1], EditorStyles.miniTextField);
+
+            if (i_Grid[0] <= 0)
+            {
+                i_Grid[0] = 0;
+            }
+
+            if (i_Grid[1] <= 0)
+            {
+                i_Grid[1] = 0;
+            }
+
+            if (i_Grid[1] <= 256)
+            {
+
+                if (i_Grid[0] == 0 || i_Grid[1] == 0)
+                {
+                    GUILayout.Label("\nError: The size of the grid must be atleast 1x1", EditorStyles.miniLabel);
+                    canGenerate = false;
+                }
+                else
+                {
+                    GUILayout.Label("\nThis will generate a " + i_Grid[0] + "x" + i_Grid[1] + " grid, containing " + (i_Grid[0] * i_Grid[1]).ToString() + " cells.\n", EditorStyles.miniLabel);
+                    if (i_Grid[1] >= 65)
+                    {
+                        GUILayout.Label("\nWarning: You are exceeding 64 tiles in the Y\n this will cause very hilly environments. The recommended is 32.\n", EditorStyles.miniLabel);
+                    }
+
+                }
+
+
+            }
+            else
+            {
+                if (!b_DisableGridCap)
+                {
+
+                    if (i_Grid[1] >= 256)
+                    {
+                        i_Grid[1] = 256;
+                    }
+                }
+
+            }
+        }
+        
+
+        if(i_PerspectiveSelected == 2 || (i_PerspectiveSelected == 0 && i_LevelSelected == 2))
         {
             canGenerate = false;
             GUILayout.Label("\nThis is not yet implemented, sorry.", EditorStyles.miniLabel);
@@ -255,7 +324,8 @@ public class GenerationWindow : EditorWindow
         if (i_PerspectiveSelected == 1)
         {
             GUILayout.Label("\nDrag n' Drop the Tiles you wish to use:", EditorStyles.boldLabel);
-            obj_Tile3 = EditorGUILayout.ObjectField("Terrain", obj_Tile1, typeof(TileBase), true);
+            obj_Tile1 = EditorGUILayout.ObjectField("Grass", obj_Tile1, typeof(TileBase), true);
+            obj_Tile2 = EditorGUILayout.ObjectField("Dirt", obj_Tile2, typeof(TileBase), true);
         }
 
 
