@@ -157,6 +157,10 @@ Prefab:
       propertyPath: m_GravityScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1759630546028456, guid: d1ac2c0aa1073d44d964ed1908f66fb3, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d1ac2c0aa1073d44d964ed1908f66fb3, type: 2}
   m_IsPrefabAsset: 0
@@ -170,7 +174,7 @@ GameObject:
   - component: {fileID: 954122969}
   - component: {fileID: 954122968}
   m_Layer: 0
-  m_Name: 'Topdown : Dungeon : Grid: Dungeon Example'
+  m_Name: 'Sidescrolling : Level : Grid: Terrain Example'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -210,8 +214,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1448793345}
   - component: {fileID: 1448793348}
-  - component: {fileID: 1448793347}
   - component: {fileID: 1448793346}
+  - component: {fileID: 1448793347}
   m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
@@ -282,17 +286,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1448793344}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7bd53f4e51c59414097b43e4a06c51bd, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a0b6ce4d73bc7a4ba87e344a7e2e683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridX: 64
-  gridY: 64
-  GenerateCollisionLayer: 1
-  Floor: {fileID: 11400000, guid: aeb7f6dc8f1b40e4f92061866b1c1646, type: 2}
-  BG: {fileID: 11400000, guid: 2740640d86697224ba17d68638f7f603, type: 2}
-  Wall: {fileID: 11400000, guid: 2740640d86697224ba17d68638f7f603, type: 2}
-  minRoomSize: 5
-  maxRoomSize: 20
+  gridX: 1000
+  gridY: 32
+  GenerateCollisionLayer: 0
+  animationFramerate: 60
+  Grass: {fileID: 11400000, guid: e8b141cc72053cf4097586669006f33b, type: 2}
+  Dirt: {fileID: 11400000, guid: 4b28e9f52f11833449174213f036385c, type: 2}
+  Foliage: {fileID: 11400000, guid: 9801fa6342f36ad47a1bd848d89de176, type: 2}
+  seed: 0
+  GenerateFoliageLayer: 1
+  foliageDensity: 0.6
 --- !u!1839735485 &1448793348
 Tilemap:
   m_ObjectHideFlags: 0
