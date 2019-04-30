@@ -8,9 +8,11 @@ public class PlatformerGenerator : TilemapGenerator
     [Header("Tiles")]
     [SerializeField] public TileBase Grass;
     [SerializeField] public TileBase Dirt;
+    [SerializeField] public TileBase Stone;
     [SerializeField] public TileBase Foliage;
     [Header("Generation Settings")]
     [SerializeField] private long seed = 0;
+    [SerializeField] private int StoneDepth = 4;
 
     float heightScale = 1.0f;
     float xScale = 1.0f;
@@ -98,6 +100,7 @@ public class PlatformerGenerator : TilemapGenerator
                 {
                     collisionMap.GetComponent<Tilemap>().SetTile(new Vector3Int(i, j, 0), Grass);
                 }
+
             }
 
         collisionMap.AddComponent<TilemapCollider2D>();
@@ -123,19 +126,6 @@ public class PlatformerGenerator : TilemapGenerator
     //    //Debug.Log(result.Length);
     //    ///return result;
     //}
-
-    private void DrawLevel()
-    {
-        foreach(Rect r in Rects)
-        {
-            thisMap.SetTile(new Vector3Int((int)r.x, (int)r.y/2, 0), Grass);
-            
-        }
-    }
-    private void CombineNoise(int pl)
-    {
-        
-    }
 
     private int random(long x, int range)
     {
@@ -261,7 +251,23 @@ public class PlatformerGenerator : TilemapGenerator
                     if ((thisMap.GetTile(new Vector3Int(i, j - 1, 0)) == Dirt) && (thisMap.GetTile(new Vector3Int(i, j + 1, 0)) == null))
                     {
                         thisMap.SetTile(new Vector3Int(i, j, 0), Grass);
-                        thisMap.SetTile(new Vector3Int(i, j-1, 0), Grass);
+                        //thisMap.SetTile(new Vector3Int(i, j-1, 0), Grass);
+                    }
+
+                    bool Stonetrue = true;
+                    
+
+                    for(int s = 0; s < StoneDepth; s++)
+                    {
+                        if (thisMap.GetTile(new Vector3Int(i, j + s, 0)) != Dirt)
+                        {
+                            Stonetrue = false;
+                        }
+                    }
+
+                    if (Stonetrue)
+                    {
+                        thisMap.SetTile(new Vector3Int(i, j, 0), Stone);
                     }
                 }
             }
@@ -269,13 +275,6 @@ public class PlatformerGenerator : TilemapGenerator
         }
     }
 
-    private float Rando()
-    {
-        //Z = (A * Z + C) % M;
-        //return Z / M;
-
-        return 0;
-    }
 
     private float interpolate(float pa, float pb, float px)
     {

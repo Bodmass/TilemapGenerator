@@ -17,8 +17,8 @@ public class GenerationWindow : EditorWindow
 
     private string s_LevelName = "Untitled";
     private static string[] s_CreationModeOptions = new string[] { "Simple", "Advanced" };
-    private static string[] s_PerspectiveOptions = new string[] { "2D Topdown", "2D Platformer", "Isometric" };
-    private static string[] s_TopdownLevelOptions = new string[] { "World Map", "Dungeon", "Town" };
+    private static string[] s_PerspectiveOptions = new string[] { "2D Topdown", "2D Sidescroller"};
+    private static string[] s_TopdownLevelOptions = new string[] { "World Map", "Dungeon"};
 
     private bool b_CollisionLayer = true;
     private bool b_FoliageLayer = true;
@@ -239,12 +239,12 @@ public class GenerationWindow : EditorWindow
 
         b_CollisionLayer = EditorGUILayout.Toggle("Generate Collision Layer", b_CollisionLayer);
 
-        if (i_PerspectiveSelected == 0 && i_LevelSelected == 0)
+        if ((i_PerspectiveSelected == 0 && i_LevelSelected == 0) || i_PerspectiveSelected == 1) 
         {
             b_FoliageLayer = EditorGUILayout.Toggle("Generate Foliage", b_FoliageLayer);
-            if(i_CreationModeSelected == 1 && b_FoliageLayer)
+            if(b_FoliageLayer)
             {
-                f_FoliageDensity = EditorGUILayout.FloatField("(*) Foliage Density", f_FoliageDensity, EditorStyles.miniTextField);
+                f_FoliageDensity = EditorGUILayout.FloatField("Foliage Density", f_FoliageDensity, EditorStyles.miniTextField);
                 if(f_FoliageDensity <= 0)
                 {
                     f_FoliageDensity = 0;
@@ -324,8 +324,31 @@ public class GenerationWindow : EditorWindow
         if (i_PerspectiveSelected == 1)
         {
             GUILayout.Label("\nDrag n' Drop the Tiles you wish to use:", EditorStyles.boldLabel);
-            obj_Tile1 = EditorGUILayout.ObjectField("Grass", obj_Tile1, typeof(TileBase), true);
+            obj_Tile3 = EditorGUILayout.ObjectField("Grass", obj_Tile3, typeof(TileBase), true);
             obj_Tile2 = EditorGUILayout.ObjectField("Dirt", obj_Tile2, typeof(TileBase), true);
+            obj_Tile1 = EditorGUILayout.ObjectField("Stone", obj_Tile1, typeof(TileBase), true);
+            //obj_Tile4 = EditorGUILayout.ObjectField("Water", obj_Tile4, typeof(TileBase), true);
+            if (b_FoliageLayer)
+                obj_Tile5 = EditorGUILayout.ObjectField("Foliage", obj_Tile5, typeof(TileBase), true);
+
+            if (obj_Tile1 == null || obj_Tile2 == null || obj_Tile3 == null)// || obj_Tile4 == null)
+            {
+
+                canGenerate = false;
+            }
+
+            else
+            {
+                if (b_FoliageLayer)
+                {
+                    if (obj_Tile5 == null)
+                    {
+                        canGenerate = false;
+                    }
+                }
+                else
+                    canGenerate = true;
+            }
         }
 
 
@@ -334,6 +357,7 @@ public class GenerationWindow : EditorWindow
             GUI.enabled = false;
         }
 
+        GUILayout.Label("\n");
         if (GUILayout.Button("Generate", EditorStyles.miniButton))
         {
 
@@ -407,15 +431,58 @@ public class GenerationWindow : EditorWindow
                 newGrid.GetComponent<Grid>().cellSize = new Vector3(i_CellSize, i_CellSize, 0);
                 newTilemap.AddComponent<TilemapRenderer>();
 
-                newTilemap.GetComponent<PlatformerGenerator>().Grass = obj_Tile1 as TileBase;
+                newTilemap.GetComponent<PlatformerGenerator>().Stone = obj_Tile1 as TileBase;
+                newTilemap.GetComponent<PlatformerGenerator>().Dirt = obj_Tile2 as TileBase;
+                newTilemap.GetComponent<PlatformerGenerator>().Grass = obj_Tile3 as TileBase;
+                //newTilemap.GetComponent<PlatformerGenerator>().Grass = obj_Tile1 as TileBase;
                 newTilemap.GetComponent<Tilemap>().animationFrameRate = f_TilemapFrameRate;
 
                 if (b_CollisionLayer)
                 {
                     newTilemap.GetComponent<PlatformerGenerator>().GenerateCollisionLayer = true;
                 }
+
+                if (b_FoliageLayer)
+                {
+                    newTilemap.GetComponent<TopdownWorldMapGenerator>().Foliage = obj_Tile5 as TileBase;
+                    newTilemap.GetComponent<TopdownWorldMapGenerator>().EnableFoliage(true);
+                    newTilemap.GetComponent<TopdownWorldMapGenerator>().SetFoliageDensity(f_FoliageDensity);
+                }
             }
         }
+        GUILayout.Label("\n");
+        GUI.enabled = true;
+        if (GUILayout.Button("Reset", EditorStyles.miniButton))
+        {
+            i_CreationModeSelected = 0;
+            i_PerspectiveSelected = 0;
+            i_LevelSelected = 0;
+            i_Grid = new int[] { 32, 32 };
+            i_CellSize = 1;
+            i_PixelPerUnit = 32;
+
+            f_TilemapFrameRate = 60f;
+            f_FoliageDensity = 0.2f;
+
+            s_LevelName = "Untitled";
+            s_CreationModeOptions = new string[] { "Simple", "Advanced" };
+            s_PerspectiveOptions = new string[] { "2D Topdown", "2D Platformer", "Isometric" };
+            s_TopdownLevelOptions = new string[] { "World Map", "Dungeon", "Town" };
+
+            b_CollisionLayer = true;
+            b_FoliageLayer = true;
+            b_GenerateWalls = true;
+            b_DisableGridCap = false;
+
+
+
+            obj_Tile1 = null;
+            obj_Tile2 = null;
+            obj_Tile3 = null;
+            obj_Tile4 = null;
+            obj_Tile5 = null;
+        }
+
 
         GUI.enabled = true;
 

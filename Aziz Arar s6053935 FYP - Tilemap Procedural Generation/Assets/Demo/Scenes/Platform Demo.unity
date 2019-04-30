@@ -293,8 +293,9 @@ MonoBehaviour:
   gridY: 32
   GenerateCollisionLayer: 0
   animationFramerate: 60
-  Grass: {fileID: 11400000, guid: e8b141cc72053cf4097586669006f33b, type: 2}
+  Grass: {fileID: 11400000, guid: d92337fb952700643bbe98c0de51c8b9, type: 2}
   Dirt: {fileID: 11400000, guid: 4b28e9f52f11833449174213f036385c, type: 2}
+  Stone: {fileID: 11400000, guid: b202d47f234d39848a38e93e8a4e4dfd, type: 2}
   Foliage: {fileID: 11400000, guid: 9801fa6342f36ad47a1bd848d89de176, type: 2}
   seed: 0
   GenerateFoliageLayer: 1
