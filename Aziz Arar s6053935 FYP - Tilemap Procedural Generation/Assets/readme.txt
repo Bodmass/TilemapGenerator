@@ -10,6 +10,9 @@ Any Tile as part of the Tilemap system will plug in and work correctly.
 
 This project will not work on any version of Unity below 2017.2.
 
+The 2d extras included with the Demo requires Unity 2018.2.
+Replace this folder with the branch of the version you are using.
+
 0.7 Patch Notes:
 
 
@@ -20,8 +23,6 @@ Additions:
 Changes:
 	-Updated 2D Platformer Generation Tiles
 	-Moved Foliage Density to Simple Options
-
-Fixes:
 	-Tilemap Perspective Label "2D Tilemap" changed to "2D Topdown"
 	-Tilemap Perspective Label "2D Platformer" changed to "2D Sidescroller"
 
@@ -46,7 +47,6 @@ Known Issues:
 Additions:
 	-Added 2D Platformer Integration to Generation Window
 	-Added Foliage option to 2D Platformer
-	
 	-Added Foliage Density Option in Advanced Options
 
 Changes:
@@ -61,15 +61,34 @@ Additions:
 
 Changes:
 	-All Tilemaps Generated now default at 60fps
+	-Updated 2D Platformer Generation, also now places down Grass and Dirt.
 
 0.4
 
 Additions:
 	-Added Collision Generation (Water and Dungeon BG)
+	-Added Early Version of 2D Platformer, using 1D Perlin Noise, NYI into the Generation Window
 	
 Fixes:
 	
 
 0.3
 
-	-Added BSP
+Additions:
+	-Added Tilemap Generator Base Class, all Generation Scripts will Inherit from this.
+	-Added 2D Topdown Dungeon Generation using BSP
+
+0.2
+
+Additions:
+	-Added Objects on the Generation Window for the Tiles
+	-Added 2D Topdown World Map functionality to Generation Window
+
+Removals: 
+	-Removed Drag n Drop which did not work.
+
+0.1 
+
+Additions:
+	-Added Basic Generation Window
+	-Added 2D Topdown World Map generation using 2D Perlin Noise

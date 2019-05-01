@@ -5,12 +5,11 @@ using UnityEngine.Tilemaps;
 
 public class TilemapGenerator : MonoBehaviour
 { 
-
+    //The Base Class for Tilemap Generation Scripts
 
     [SerializeField] protected int gridX = 32;
     [SerializeField] protected int gridY = 32;
     protected TileBase[] tileArray;
-    //protected List<TileBase> tiles = new List<TileBase>();
     protected Vector3Int[] positions;
     protected Tilemap thisMap;
     protected int arrayLength;
@@ -25,6 +24,7 @@ public class TilemapGenerator : MonoBehaviour
     protected virtual void GenerateCollisions()
     {
     }
+
     public void SetGrid(int i, int j)
     {
         gridX = i;
@@ -36,8 +36,4 @@ public class TilemapGenerator : MonoBehaviour
         return new Vector2(gridX, gridY);
     }
 
-    //public virtual List<TileBase> GetTileList()
-    //{
-    //    return tiles;
-    //}
 }

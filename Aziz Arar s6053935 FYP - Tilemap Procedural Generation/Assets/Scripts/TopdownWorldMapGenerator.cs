@@ -7,6 +7,7 @@ using Unity.Collections;
 
 public struct PerlinJob : IJobParallelFor
 {
+    //Perlin Job for Multithreading
     public float size;
     public int gridX;
     public int gridY;
@@ -21,6 +22,7 @@ public struct PerlinJob : IJobParallelFor
         pos.x = i % gridX;
         pos.y = i / gridY;
 
+        //Running a 2D Perlin Noise function, offset by Random.Range run before the job is scheduled
         float height = Mathf.PerlinNoise(((float)pos.x / size) + offsetX, ((float)pos.y / size) + offsetY);
 
         positions[i] = pos;
@@ -29,6 +31,7 @@ public struct PerlinJob : IJobParallelFor
 }
 
 public class TopdownWorldMapGenerator : TilemapGenerator{
+
     [Header("Tiles")]
     [SerializeField] public TileBase Shore;
     [SerializeField] public TileBase Water;
@@ -65,6 +68,7 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
         thisMap = GetComponent<Tilemap>();
 
+        //Setting up a New Perlin Job and sending it the data from the Generation Window
         job = new PerlinJob
         {
             size = size,
@@ -107,8 +111,9 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
             GameObject.Destroy(GameObject.Find("FoliageMap"));
 
         }
-        //CorridorList.Clear();
-        PerlinNoise();
+
+        PerlinNoise(); //We can just re-run the Perlin Noise as there will always be a tile which replaces what is currently down. 
+        //This means we don't need to delete the entire Tilemap to regenerate, as long as the grid size remains the same.
 
         FixWater();
     }
@@ -130,6 +135,10 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
     protected override void GenerateCollisions()
     {
+        /*
+         Adding a TilemapCollider with a CompositeCollider, which requires a Rigidbody which we can set to Kinematic.
+         This allows the creation of a collision map which automatically connects colliders inside or beside it, creating one big collider.
+         */
         GameObject collisionMap = new GameObject("CollisionMap", typeof(Tilemap));
         collisionMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
 
@@ -166,6 +175,7 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
     private void GenerateFoliage()
     {
+        //Making Foliage on a seperate Tilemap layer
         GameObject foliageMap = new GameObject("FoliageMap", typeof(Tilemap));
         foliageMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
 
@@ -188,6 +198,7 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
     void PerlinNoise()
     {
+        //Randomizing position on the Perlin Noise
         job.offsetX = (int)Random.Range(-10000f, 10000f);
         job.offsetY = (int)Random.Range(-10000f, 10000f);
 
@@ -196,9 +207,11 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
         handle.Complete();
 
+        //Grabbing the height information from the Perlin Job
         job.positions.CopyTo(positions);
         job.heights.CopyTo(heights);
 
+        //Setting the Tiles depending on the height
         for (int index = 0; index < arrayLength; ++index)
         {
 
