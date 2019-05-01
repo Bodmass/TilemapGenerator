@@ -14,6 +14,7 @@ public struct PerlinJob : IJobParallelFor
     public int offsetX;
     public int offsetY;
 
+
     public NativeArray<Vector3Int> positions;
     public NativeArray<float> heights;
     public void Execute(int i)
@@ -43,7 +44,7 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
     public float shoreheight = .45f;
     public float grassheight = .5f;
 
-    private float seed = 0;
+    private int seed = 0;
     bool isGenerated = false;
 
     private float size = 20f;

@@ -14,7 +14,7 @@ public class TilemapGenerator : MonoBehaviour
     protected Tilemap thisMap;
     protected int arrayLength;
     public bool GenerateCollisionLayer = false;
-    protected List<Rect> CorridorList = new List<Rect>();
+
     public float animationFramerate = 60;
 
     public virtual void Regenerate()

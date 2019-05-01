@@ -303,7 +303,7 @@ MonoBehaviour:
   BG: {fileID: 11400000, guid: aeb7f6dc8f1b40e4f92061866b1c1646, type: 2}
   Wall: {fileID: 11400000, guid: a318082eb02cdfe46ae7256681849240, type: 2}
   GenerateWalls: 1
-  minRoomSize: 5
+  minRoomSize: 10
   maxRoomSize: 20
 --- !u!1839735485 &1448793348
 Tilemap:

@@ -298,6 +298,9 @@ MonoBehaviour:
   Stone: {fileID: 11400000, guid: b202d47f234d39848a38e93e8a4e4dfd, type: 2}
   Foliage: {fileID: 11400000, guid: 9801fa6342f36ad47a1bd848d89de176, type: 2}
   seed: 0
+  StoneDepth: 4
+  MaxHillSteepness: 10
+  PixelsPerChunk: 32
   GenerateFoliageLayer: 1
   foliageDensity: 0.6
 --- !u!1839735485 &1448793348
