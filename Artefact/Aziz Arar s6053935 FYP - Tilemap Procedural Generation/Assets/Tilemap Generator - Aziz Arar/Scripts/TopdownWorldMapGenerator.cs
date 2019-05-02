@@ -33,6 +33,12 @@ public struct PerlinJob : IJobParallelFor
 
 public class TopdownWorldMapGenerator : TilemapGenerator{
 
+    /*
+     This script inherits from Tilemap Generator
+     The information for the grid size, arrays for tileArray and positions,
+     variable directly to the tilemap and information about collision and Tilemap frame rate is obtained.
+     */
+
     [Header("Tiles")]
     [SerializeField] public TileBase Shore;
     [SerializeField] public TileBase Water;
@@ -44,8 +50,7 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
     public float shoreheight = .45f;
     public float grassheight = .5f;
 
-    private int seed = 0;
-    bool isGenerated = false;
+    //private int seed = 0;
 
     private float size = 20f;
     private int offsetX = 0;
@@ -121,6 +126,13 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
     private void FixWater()
     {
+        /*
+         This function's purpose is an attempt to fix a Water Rotation bug, 
+         
+         It isn't working at this time
+         */ 
+         
+
         //for (int i = 0; i <gridX; i++)
         //    for (int j = 0; j < gridY; j++)
         //    {
@@ -176,7 +188,10 @@ public class TopdownWorldMapGenerator : TilemapGenerator{
 
     private void GenerateFoliage()
     {
-        //Making Foliage on a seperate Tilemap layer
+        /*
+         If Foliage Generation is checked in the Tilemap Generator Window, Create a new Tilemap called "FoliageMap".
+         Depending on the foliageDensity, place a Foliage tile on the same tile as a grass tile.
+         */
         GameObject foliageMap = new GameObject("FoliageMap", typeof(Tilemap));
         foliageMap.GetComponent<Transform>().SetParent(thisMap.GetComponentInParent<Grid>().transform);
 

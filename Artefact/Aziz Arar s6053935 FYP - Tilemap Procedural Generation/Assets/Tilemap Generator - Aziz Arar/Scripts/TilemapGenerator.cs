@@ -5,8 +5,18 @@ using UnityEngine.Tilemaps;
 
 public class TilemapGenerator : MonoBehaviour
 { 
-    //The Base Class for Tilemap Generation Scripts
+    /*
+    This is ase Class for Tilemap Generation Scripts
 
+    The following variable are avaliable for all scripts which inherit from this.
+
+    The scripts which currently inherit from this are:
+
+    PlatformerGenerator.cs
+    TopdownDungeonGenerator.cs
+    TopdownWorldMapGenerator.cs
+
+    */
     [SerializeField] protected int gridX = 32;
     [SerializeField] protected int gridY = 32;
     protected TileBase[] tileArray;

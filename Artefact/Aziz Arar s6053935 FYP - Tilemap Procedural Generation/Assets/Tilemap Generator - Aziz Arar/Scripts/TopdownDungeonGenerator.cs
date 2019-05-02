@@ -17,8 +17,6 @@ public class TopdownDungeonGenerator : TilemapGenerator
     [Header("BSP Settings")]
     public int minRoomSize = 5;
     public int maxRoomSize = 20;
-    private List<Rect> CorridorList = new List<Rect>();
-
 
     public class Leaf
     {
@@ -27,28 +25,28 @@ public class TopdownDungeonGenerator : TilemapGenerator
         Each Leaf will have a left and right leaf inside of it, these will split up into new leaves creating a tree.
         When it reaches the smallest leaf, left or right respectively will remain null and end the tree there.
          */
-        public Leaf left, right;
-        public Rect rect;
+        public Leaf leftLeaf, rightLeaf;
+        public Rect roomRect;
         public Rect room = new Rect(-1, -1, 0, 0);
 
 
 
 
-        public Rect GetRoom()
+        public Rect getLeaf()
         {
-            if (left == null && right == null)
+            if (leftLeaf == null && rightLeaf == null)
             {
                 return room;
             }
-            if (left != null)
+            if (leftLeaf != null)
             {
-                Rect lroom = left.GetRoom();
+                Rect lroom = leftLeaf.getLeaf();
                 if (lroom.x != -1)
                     return lroom;
             }
-            if (right != null)
+            if (rightLeaf != null)
             {
-                Rect rroom = right.GetRoom();
+                Rect rroom = rightLeaf.getLeaf();
                 if (rroom.x != -1)
                     return rroom;
             }
@@ -56,35 +54,35 @@ public class TopdownDungeonGenerator : TilemapGenerator
             return new Rect(-1, -1, 0, 0);
         }
 
-        public void CreateRoom()
+        public void GenerateRoom()
         {
-            if (left != null)
+            if (leftLeaf != null)
             {
-                left.CreateRoom();
+                leftLeaf.GenerateRoom();
             }
-            if (right != null)
+            if (rightLeaf != null)
             {
-                right.CreateRoom();
+                rightLeaf.GenerateRoom();
             }
-            if (left == null && right == null)
+            if (leftLeaf == null && rightLeaf == null)
             {
-                int roomWidth = (int)Random.Range(rect.width / 2, rect.width - 2);
-                int roomHeight = (int)Random.Range(rect.height / 2, rect.height - 2);
-                int roomX = (int)Random.Range(1, rect.width - roomWidth - 1);
-                int roomY = (int)Random.Range(1, rect.height - roomHeight - 1);
+                int roomWidth = (int)Random.Range(roomRect.width / 2, roomRect.width - 2);
+                int roomHeight = (int)Random.Range(roomRect.height / 2, roomRect.height - 2);
+                int roomX = (int)Random.Range(1, roomRect.width - roomWidth - 1);
+                int roomY = (int)Random.Range(1, roomRect.height - roomHeight - 1);
 
-                room = new Rect(rect.x + roomX, rect.y + roomY, roomWidth, roomHeight);
+                room = new Rect(roomRect.x + roomX, roomRect.y + roomY, roomWidth, roomHeight);
 
             }
         }
 
-        public Leaf(Rect mrect)
+        public Leaf(Rect newRect)
         {
-            rect = mrect;
+            roomRect = newRect;
 
         }
 
-        public bool Split(int minRoomSize, int maxRoomSize)
+        public bool LeafSplit(int minRoomSize, int maxRoomSize)
         {
             /*
             This function splits the dungeon Horizontally or Vertically depending on the size of the subdungeons.
@@ -92,46 +90,40 @@ public class TopdownDungeonGenerator : TilemapGenerator
             The size of the rooms will be affected by the minimum
             
              */
-            if (left != null && right != null)
+            if (leftLeaf != null && rightLeaf != null)
             {
                 return false;
             }
 
-            bool splitH;
-            if (rect.width / rect.height >= 1.25)
-            {
-                splitH = false;
-            }
-            else if (rect.height / rect.width >= 1.25)
-            {
-                splitH = true;
-            }
+            bool horizontalSplit;
+            if (roomRect.width / roomRect.height >= 1.25)
+                horizontalSplit = false;
+
+            else if (roomRect.height / roomRect.width >= 1.25)
+                horizontalSplit = true;
+
             else
-            {
-                splitH = Random.Range(0.0f, 1.0f) > 0.5;
-            }
+                horizontalSplit = Random.Range(0.0f, 1.0f) > 0.5;
 
-            if (Mathf.Min(rect.height, rect.width) / 2 < minRoomSize)
-            {
-
+            if (Mathf.Min(roomRect.height, roomRect.width) / 2 < minRoomSize)
                 return false;
-            }
-            if (splitH)
+
+            if (horizontalSplit)
             {
 
-                int split = Random.Range(minRoomSize, (int)(rect.width - minRoomSize));
+                int splitLeaf = Random.Range(minRoomSize, (int)(roomRect.width - minRoomSize));
 
-                left = new Leaf(new Rect(rect.x, rect.y, rect.width, split));
-                right = new Leaf(
-                  new Rect(rect.x, rect.y + split, rect.width, rect.height - split));
+                leftLeaf = new Leaf(new Rect(roomRect.x, roomRect.y, roomRect.width, splitLeaf));
+                rightLeaf = new Leaf(
+                new Rect(roomRect.x, roomRect.y + splitLeaf, roomRect.width, roomRect.height - splitLeaf));
             }
             else
             {
-                int split = Random.Range(minRoomSize, (int)(rect.height - minRoomSize));
+                int splitLeaf = Random.Range(minRoomSize, (int)(roomRect.height - minRoomSize));
 
-                left = new Leaf(new Rect(rect.x, rect.y, split, rect.height));
-                right = new Leaf(
-                  new Rect(rect.x + split, rect.y, rect.width - split, rect.height));
+                leftLeaf = new Leaf(new Rect(roomRect.x, roomRect.y, splitLeaf, roomRect.height));
+                rightLeaf = new Leaf(
+                new Rect(roomRect.x + splitLeaf, roomRect.y, roomRect.width - splitLeaf, roomRect.height));
             }
 
             return true;
@@ -143,7 +135,6 @@ public class TopdownDungeonGenerator : TilemapGenerator
     // Use this for initialization
     void Start()
     {
-        CorridorList = new List<Rect>();
         thisMap = GetComponent<Tilemap>();
         arrayLength = gridX * gridY;
         positions = new Vector3Int[arrayLength];
@@ -151,10 +142,9 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
         SetupDungeon();
         Leaf currentDungeon = new Leaf(new Rect(0, 0, gridX, gridY));
-        CreateBSP(currentDungeon);
-        currentDungeon.CreateRoom();
+        BSP(currentDungeon);
+        currentDungeon.GenerateRoom();
         DrawRooms(currentDungeon);
-        DrawCorridors();
 
 
         if (GenerateCollisionLayer)
@@ -167,7 +157,6 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
 
     }
-
     private void SetupDungeon()
     {
         /*
@@ -185,27 +174,20 @@ public class TopdownDungeonGenerator : TilemapGenerator
         }
         thisMap.SetTiles(positions, tileArray);
     }
-    public void CreateBSP(Leaf dungeonLeaf)
+    public void BSP(Leaf dungeonLeaf)
     {
         /*
          Begin the BSP Generation
          If the current dungeon size is bigger then the max room size, start splitting it
          Once Split, Run this again on the split dungeons
          */
-        if (dungeonLeaf.left == null && dungeonLeaf.right == null)
+        if (dungeonLeaf.leftLeaf == null && dungeonLeaf.rightLeaf == null)
         {
-            
-            if (dungeonLeaf.rect.width > maxRoomSize
-              || dungeonLeaf.rect.height > maxRoomSize
-              || Random.Range(0.0f, 1.0f) > 0.25)
+            if (dungeonLeaf.roomRect.width > maxRoomSize || dungeonLeaf.roomRect.height > maxRoomSize || Random.Range(0.0f, 1.0f) > 0.25)
             {
-
-                if (dungeonLeaf.Split(minRoomSize, maxRoomSize))
+                if (dungeonLeaf.LeafSplit(minRoomSize, maxRoomSize))
                 {
-
-                    CreateBSP(dungeonLeaf.left);
-                    CreateBSP(dungeonLeaf.right);
-
+                    BSP(dungeonLeaf.leftLeaf);
 
                 }
             }
@@ -213,22 +195,26 @@ public class TopdownDungeonGenerator : TilemapGenerator
     }
     public void CorridorCreation(Leaf left, Leaf right)
     {
-        Rect lroom = left.GetRoom();
-        Rect rroom = right.GetRoom();
+        /*
+         The purpose of this function is to connect leaflets, a point in each leaf is obtained
+         This code then begins placing tiles between them.
+         */
+        Rect lroom = left.getLeaf();
+        Rect rroom = right.getLeaf();
+        
+        Vector2 point1 = new Vector2((int)Random.Range(lroom.x + 1, lroom.xMax), (int)Random.Range(lroom.y + 1, lroom.yMax - 1));
+        Vector2 point2 = new Vector2((int)Random.Range(rroom.x + 1, rroom.xMax), (int)Random.Range(rroom.y + 1, rroom.yMax - 1));
 
-
-        Vector2 lpoint = new Vector2((int)Random.Range(lroom.x + 1, lroom.xMax), (int)Random.Range(lroom.y + 1, lroom.yMax - 1));
-        Vector2 rpoint = new Vector2((int)Random.Range(rroom.x + 1, rroom.xMax), (int)Random.Range(rroom.y + 1, rroom.yMax - 1));
-
-        if (lpoint.x > rpoint.x)
+        //Ensure the largest value is to the right
+        if (point1.x > point2.x)
         {
-            Vector2 temp = lpoint;
-            lpoint = rpoint;
-            rpoint = temp;
+            Vector2 temp = point1;
+            point1 = point2;
+            point2 = temp;
         }
 
-        int w = (int)(lpoint.x - rpoint.x);
-        int h = (int)(lpoint.y - rpoint.y);
+        int w = (int)(point1.x - point2.x);
+        int h = (int)(point1.y - point2.y);
 
         if (w != 0)
         {
@@ -236,18 +222,31 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
             if (Random.Range(0, 1) > 2)
             {
+                //For each tile in the range of the point, to the max size, place a tile down
+                for (int i = (int)point1.x; i < (int)point1.x + Mathf.Abs(w) + 1; i++)
+                    for (int j = (int)point1.y; j < (int)point1.y + 1; j++)
+                    {
+                        thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                    }
 
-                CorridorList.Add(new Rect(lpoint.x, lpoint.y, Mathf.Abs(w) + 1, 1));
 
                 if (h < 0)
                 {
+                    for (int i = (int)point2.x; i < point2.x + 1; i++)
+                        for (int j = (int)point1.y; j < (int)point1.y + Mathf.Abs(h); j++)
+                        {
+                            thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                        }
 
-                    CorridorList.Add(new Rect(rpoint.x, lpoint.y, 1, Mathf.Abs(h)));
                 }
                 else
                 {
+                    for (int i = (int)point2.x; i < (int)point2.x + 1; i++)
+                        for (int j = (int)point1.y; j < (int)point1.y - Mathf.Abs(h); j++)
+                        {
+                            thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                        }
 
-                    CorridorList.Add(new Rect(rpoint.x, lpoint.y, 1, -Mathf.Abs(h)));
                 }
 
             }
@@ -256,17 +255,29 @@ public class TopdownDungeonGenerator : TilemapGenerator
             {
                 if (h < 0)
                 {
+                    for (int i = (int)point1.x; i < (int)point1.x + 1; i++)
+                        for (int j = (int)point1.y; j < (int)point1.y + Mathf.Abs(h); j++)
+                        {
+                            thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                        }
 
-                    CorridorList.Add(new Rect(lpoint.x, lpoint.y, 1, Mathf.Abs(h)));
                 }
                 else
                 {
+                    for (int i = (int)point1.x; i < (int)point1.x + 1; i++)
+                        for (int j = (int)point2.y; j < (int)point2.y + Mathf.Abs(h); j++)
+                        {
+                            thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                        }
 
-                    CorridorList.Add(new Rect(lpoint.x, rpoint.y, 1, Mathf.Abs(h)));
                 }
             }
 
-            CorridorList.Add(new Rect(lpoint.x, rpoint.y, Mathf.Abs(w) + 1, 1));
+            for(int i = (int)point1.x; i < (int)point1.x + Mathf.Abs(w) + 1; i++)
+                for (int j = (int)point2.y; j < (int)point2.y + 1; j++)
+                {
+                    thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                }
 
         }
 
@@ -274,13 +285,19 @@ public class TopdownDungeonGenerator : TilemapGenerator
         {
             if (h < 0)
             {
-
-                CorridorList.Add(new Rect((int)lpoint.x, (int)lpoint.y, 1, Mathf.Abs(h)));
+                for (int i = (int)point1.x; i < (int)point1.x + 1; i++)
+                    for (int j = (int)point1.y; j < (int)point1.y + Mathf.Abs(h); j++)
+                    {
+                        thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                    }
             }
             else
             {
-
-                CorridorList.Add(new Rect((int)rpoint.x, (int)rpoint.y, 1, Mathf.Abs(h)));
+                for (int i = (int)point2.x; i < (int)point2.x + 1; i++)
+                    for (int j = (int)point2.y; j < (int)point2.y + Mathf.Abs(h); j++)
+                    {
+                        thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
+                    }
             }
         }
 
@@ -295,12 +312,14 @@ public class TopdownDungeonGenerator : TilemapGenerator
          If so, draw the tile.
          If not, attempt to draw the leaves of left and right to find a final leaf to draw.
          While attempting to draw the newer leaves, if they both contain leaves inside of them, connect them with a Corridor.
+
+         To do: Remove Rects and make based off TileBase
          */
         if (dungeonLeaf == null)
         {
             return;
         }
-        if (dungeonLeaf.left == null && dungeonLeaf.right == null)
+        if (dungeonLeaf.leftLeaf == null && dungeonLeaf.rightLeaf == null)
         {
 
 
@@ -309,9 +328,9 @@ public class TopdownDungeonGenerator : TilemapGenerator
                 for (int j = (int)dungeonLeaf.room.y; j < dungeonLeaf.room.yMax; j++)
                 {
 
-                    
+
                     thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
-                     
+
 
                 }
             }
@@ -321,28 +340,14 @@ public class TopdownDungeonGenerator : TilemapGenerator
         }
         else
         {
-            DrawRooms(dungeonLeaf.left);
-            DrawRooms(dungeonLeaf.right);
+            DrawRooms(dungeonLeaf.leftLeaf);
+            DrawRooms(dungeonLeaf.rightLeaf);
 
-            if (dungeonLeaf.left != null && dungeonLeaf.right != null)
-                CorridorCreation(dungeonLeaf.left, dungeonLeaf.right);
+            if (dungeonLeaf.leftLeaf != null && dungeonLeaf.rightLeaf != null)
+                CorridorCreation(dungeonLeaf.leftLeaf, dungeonLeaf.rightLeaf);
         }
     }
-    public void DrawCorridors()
-    {
-        //For every Corridor Rect collected in CorridorCreation(), draw it
-        foreach (Rect c in CorridorList)
-        {
-            for (int i = (int)c.x; i < c.xMax; i++)
-            {
-                for (int j = (int)c.y; j < c.yMax; j++)
-                {
-                    thisMap.SetTile(new Vector3Int(i, j, 0), Floor);
 
-                }
-            }
-        }
-    }
     private void PlaceWalls()
     {
 
@@ -381,13 +386,11 @@ public class TopdownDungeonGenerator : TilemapGenerator
     }
     public override void Regenerate()
     {
-        CorridorList.Clear();
         SetupDungeon();
         Leaf newDungeon = new Leaf(new Rect(0, 0, gridX, gridY));
-        CreateBSP(newDungeon);
-        newDungeon.CreateRoom();
+        BSP(newDungeon);
+        newDungeon.GenerateRoom();
         DrawRooms(newDungeon);
-        DrawCorridors();
 
         if (GenerateCollisionLayer)
         {
@@ -400,8 +403,10 @@ public class TopdownDungeonGenerator : TilemapGenerator
 
     }
 
-
+    //References to BSP assitance, applying the algoritm with changes to the Tilemap
     //http://www.rombdn.com/blog/2018/01/12/random-dungeon-bsp-unity/
     //https://eskerda.com/bsp-dungeon-generation/
+    //https://gamedevelopment.tutsplus.com/tutorials/how-to-use-bsp-trees-to-generate-game-maps--gamedev-12268
+
 }
 

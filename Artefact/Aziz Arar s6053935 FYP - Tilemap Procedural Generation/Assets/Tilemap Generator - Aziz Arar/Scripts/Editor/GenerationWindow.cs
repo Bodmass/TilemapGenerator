@@ -5,6 +5,10 @@ using UnityEngine.Tilemaps;
 public class GenerationWindow : EditorWindow
 {
 
+    /*
+    This script contains all the information to generate a level. Inherited from Editor Window, From Labels to Input Fields, it allows an easy set up of an Editor Window. 
+     
+     */
     private int i_CreationModeSelected = 0;
     private int i_PerspectiveSelected = 0;
     private int i_LevelSelected = 0;
@@ -25,8 +29,7 @@ public class GenerationWindow : EditorWindow
     private bool b_GenerateWalls = true;
     private bool b_DisableGridCap = false;
 
-    private GridPalette gp_Pallete;
-
+    //The TileBase selection objects
     private Object obj_Tile1;
     private Object obj_Tile2;
     private Object obj_Tile3;
@@ -47,13 +50,16 @@ public class GenerationWindow : EditorWindow
         float width = this.position.width;
         float height = this.position.height;
 
-
+        //Adding a scroll view so the window doesn't need to be stretched to view all the information.
         v2_ScrollPos = GUILayout.BeginScrollView(v2_ScrollPos, GUILayout.Width(width), GUILayout.Height(height));
 
         bool canGenerate = true;
         GUILayout.Label("Tilemap Generator\nby Aziz Arar\nv0.7\n", EditorStyles.centeredGreyMiniLabel);
 
         GUILayout.Label("\nCreation Mode:", EditorStyles.boldLabel);
+
+
+        //Deciding the Creation Mode between Simple and Advanced
 
         i_CreationModeSelected = GUILayout.SelectionGrid(i_CreationModeSelected, s_CreationModeOptions, s_CreationModeOptions.Length, EditorStyles.radioButton);
         if (i_CreationModeSelected == 1)
@@ -66,15 +72,21 @@ public class GenerationWindow : EditorWindow
         s_LevelName = EditorGUILayout.TextField("Level Name:", s_LevelName);
         GUILayout.Label("\nTilemap Perspective:", EditorStyles.boldLabel);
 
+        //Deciding the Perspective
+
         i_PerspectiveSelected = GUILayout.SelectionGrid(i_PerspectiveSelected, s_PerspectiveOptions, s_PerspectiveOptions.Length, EditorStyles.radioButton);
 
 
+        //Deciding the Level Type if in Topdown
 
         if (i_PerspectiveSelected == 0)
         {
             GUILayout.Label("\nLevel Type:", EditorStyles.boldLabel);
             i_LevelSelected = GUILayout.SelectionGrid(i_LevelSelected, s_TopdownLevelOptions, s_TopdownLevelOptions.Length, EditorStyles.radioButton);
         }
+
+        //The grid options for Topdown, this ensures both the gridX and gridY sizes stay the same, while keeping it between 0 and 256. 
+        ///It also checks if the Grid Cap is disabled, allowing to exceed 256.
 
         if (i_PerspectiveSelected == 0 && i_LevelSelected != 2)
         {
@@ -93,8 +105,6 @@ public class GenerationWindow : EditorWindow
                 i_Grid[0] = EditorGUILayout.IntField("Grid Size", i_Grid[0], EditorStyles.miniTextField);
                 i_Grid[1] = i_Grid[0];
             
-
-            //i_Grid[1] = EditorGUILayout.IntField("Grid Y", i_Grid[1], EditorStyles.miniTextField);
 
             if (i_Grid[0] <= 0)
             {
@@ -153,6 +163,8 @@ public class GenerationWindow : EditorWindow
 
             }
         }
+
+        //The Grid Options for Sidescrolling, the gridX and gridY are seperate in this scenario. There is no maximum cap for the X axis, however in the Y 256 is the max.
 
         if (i_PerspectiveSelected == 1)
         {
@@ -218,6 +230,8 @@ public class GenerationWindow : EditorWindow
             }
         }
         
+        //If another option was picked. 
+        //At this time Isometeric and Town has been removed as options, so you can't reach this state.
 
         if(i_PerspectiveSelected == 2 || (i_PerspectiveSelected == 0 && i_LevelSelected == 2))
         {
@@ -225,6 +239,7 @@ public class GenerationWindow : EditorWindow
             GUILayout.Label("\nThis is not yet implemented, sorry.", EditorStyles.miniLabel);
         }
 
+        //Show various Advanced Options
         if (i_CreationModeSelected == 1)
         {
             GUILayout.Label("\nTilemap Options:", EditorStyles.boldLabel);
@@ -236,6 +251,8 @@ public class GenerationWindow : EditorWindow
             GUILayout.Label("\n", EditorStyles.boldLabel);
 
         }
+
+        //Layers for Collision, Walls (Dungeon only) and Foliage (Topdown World Map and Sidescrolling only).
 
         b_CollisionLayer = EditorGUILayout.Toggle("Generate Collision Layer", b_CollisionLayer);
 
@@ -261,9 +278,7 @@ public class GenerationWindow : EditorWindow
             b_GenerateWalls = EditorGUILayout.Toggle("Generate Walls", b_GenerateWalls);
         }
 
-
-        //<-- toggle Collision Layout
-
+        //Tile selection for Topdown World Map
 
         if (i_PerspectiveSelected == 0 && i_LevelSelected == 0)
         {
@@ -294,6 +309,11 @@ public class GenerationWindow : EditorWindow
                     canGenerate = true;
             }
         }
+
+
+        //Tile selection for Topdown Dungeon
+
+
         if (i_PerspectiveSelected == 0 && i_LevelSelected == 1)
         {
             GUILayout.Label("\nDrag n' Drop the Tiles you wish to use:", EditorStyles.boldLabel);
@@ -320,6 +340,9 @@ public class GenerationWindow : EditorWindow
                     canGenerate = true;
             }
         }
+
+
+        //Tile selection for Sidescrolling
 
         if (i_PerspectiveSelected == 1)
         {
@@ -351,11 +374,18 @@ public class GenerationWindow : EditorWindow
             }
         }
 
+        //Checking whether the Generate button should be avaliable
 
         if (!canGenerate)
         {
             GUI.enabled = false;
         }
+
+        /*
+         The following code checks the different Perspective and Level types selected. 
+         It adds the component for the Grid and Tilemap, Adding the specific Generation Script to the Tilemap.
+         The information selected previously is sent to the Generation Script added to the Tilemap.
+         */
 
         GUILayout.Label("\n");
         if (GUILayout.Button("Generate", EditorStyles.miniButton))
@@ -451,6 +481,9 @@ public class GenerationWindow : EditorWindow
             }
         }
         GUILayout.Label("\n");
+
+        //Re-enabling buttons for newly created objects such as the Reset Button, incase it is disabled by 'canGenerate'
+        //Resets all values to default
         GUI.enabled = true;
         if (GUILayout.Button("Reset", EditorStyles.miniButton))
         {
